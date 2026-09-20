@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="author" content="Tatsuro Chiba">
+<meta name="description" content="Typography logo generator using recursive inward buffers.">
+<title>Typo2Logo</title>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#171717;background:#f4f4f2}
+*{box-sizing:border-box}body{margin:0}
+header{padding:18px 24px;background:#111;color:#fff;display:flex;justify-content:space-between;align-items:center}
+header b{font-size:22px;letter-spacing:.04em}header span{font-size:12px;color:#aaa}
+main{display:grid;grid-template-columns:320px 1fr;min-height:calc(100vh - 116px)}
+aside{padding:20px;background:#fff;border-right:1px solid #ddd;overflow:auto}
+.preview{display:flex;align-items:center;justify-content:center;padding:28px;min-width:0}
+.stage{width:min(100%,1120px)}
+canvas{display:block;width:100%;height:auto;background:#fff;box-shadow:0 8px 32px #0001}
+.status{margin-top:8px;color:#777;font-size:11px;display:flex;justify-content:space-between;gap:12px}
+label{display:block;font-size:12px;font-weight:700;margin:14px 0 5px}
+input[type=text],select,input[type=file]{width:100%;padding:9px;border:1px solid #ccc;border-radius:7px;background:#fff}
+input[type=range]{width:100%;accent-color:#d71920}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.color{display:flex;gap:8px}.color input[type=color]{width:46px;height:38px;border:0;background:none}
+button{border:0;border-radius:8px;padding:10px 12px;font-weight:700;cursor:pointer}
+button:disabled{opacity:.45;cursor:wait}.primary{background:#d71920;color:white}.secondary{background:#e8e8e5}
+.buttons{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+small{color:#777;line-height:1.5}.check{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px}
+footer{min-height:54px;padding:14px 24px;background:#111;color:#aaa;display:flex;align-items:center;justify-content:space-between;gap:18px;font-size:12px}
+footer strong{color:#fff;font-weight:700}footer a{color:#fff;text-decoration:none;border-bottom:1px solid #777;padding-bottom:1px}footer a:hover{border-color:#fff}
+@media(max-width:760px){main{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid #ddd}.preview{padding:12px}footer{align-items:flex-start;flex-direction:column;gap:6px}}
+</style>
+</head>
+<body>
+<header><b>Typo2Logo</b><span>recursive-buffer typography</span></header>
+<main>
+<aside>
+<label>TEXT</label><input id="text" type="text" value="RRIM">
+<label>FONT</label>
+<select id="font">
+<option>Arial Black</option><option>Arial</option><option>Impact</option>
+<option>Georgia</option><option>Times New Roman</option><option>Trebuchet MS</option>
+<option>Verdana</option><option>Courier New</option><option>Yu Gothic</option><option>Yu Mincho</option>
+</select>
+<label>OPTIONAL: LOAD LOCAL FONT</label><input id="fontFile" type="file" accept=".ttf,.otf,.woff,.woff2"><small>未選択なら上の標準フォントを使用します。</small>
+<div class="row">
+<div><label>FONT SIZE <span id="fsV"></span></label><input id="fs" type="range" min="120" max="650" value="430"></div>
+<div><label>WEIGHT</label><select id="weight"><option>900</option><option>800</option><option>700</option><option>600</option><option>400</option></select></div>
+</div>
+<label>LETTER SPACING <span id="lsV"></span></label><input id="letterSpacing" type="range" min="-60" max="160" value="0" step="1">
+<label>MODE</label>
+<select id="mode"><option value="lines">Waterline</option><option value="fill">Fill + Waterline</option><option value="distance">Distance field</option></select>
+<div class="row">
+<div><label>BUFFER SCALE <span id="spV"></span></label><input id="spacing" type="range" min="3" max="45" value="14"></div>
+<div><label>LINE WIDTH <span id="lwV"></span></label><input id="lineWidth" type="range" min="1" max="12" value="3"></div>
+</div>
+<div class="row">
+<div><label>START COLOR</label><div class="color"><input id="c1" type="color" value="#e60012"><input id="c1t" type="text" value="#e60012"></div></div>
+<div><label>END COLOR</label><div class="color"><input id="c2" type="color" value="#650008"><input id="c2t" type="text" value="#650008"></div></div>
+</div>
+<label>BACKGROUND</label><div class="color"><input id="bg" type="color" value="#ffffff"><input id="bgt" type="text" value="#ffffff"></div>
+<label class="check"><input id="gradient" type="checkbox"> Gradient</label>
+<label class="check"><input id="reverse" type="checkbox"> Reverse gradient</label>
+<label class="check"><input id="transparent" type="checkbox"> Transparent background</label>
+<div class="buttons"><button class="primary" id="run">RUN</button><button class="secondary" id="png">SAVE PNG</button><button class="secondary" id="reset">RESET</button></div>
+<p><small>文字輪郭へ負のバッファーを再帰的に適用し、連続した平行線を描きます。線分の接続処理や画素の剰余判定は使用しません。</small></p>
+</aside>
+<section class="preview"><div class="stage"><canvas id="out" width="1600" height="800"></canvas><div class="status"><span id="status">準備中</span><span>1600 × 800 px</span></div></div></section>
+</main>
+<footer>
+  <div>© 2026 <strong>千葉達朗（千葉研究室） / Tatsuro Chiba</strong></div>
+  <a href="https://www.facebook.com/arukazan" target="_blank" rel="noopener noreferrer" aria-label="千葉達朗のFacebookページを開く">Facebook: @arukazan ↗</a>
+</footer>
+<script>
+const $=id=>document.getElementById(id),out=$("out"),ctx=out.getContext("2d",{alpha:true,willReadFrequently:true});
+const W=out.width,H=out.height;
+const mask=document.createElement("canvas");mask.width=W;mask.height=H;
+const mctx=mask.getContext("2d",{alpha:true,willReadFrequently:true});
+const lines=document.createElement("canvas");lines.width=W;lines.height=H;
+const lctx=lines.getContext("2d",{alpha:true});
+const BUFFER_DISTANCES=[0.5,1,1.5,2,2.5,3,4,5,6,7,9,11,13,17,21,25,30];
+let localFont=null,binaryMask=null,maskAlpha=null,distanceField=null,maxDistance=1,layout=null,generation=0;
+
+function hex(value){
+  let s=String(value).trim().replace("#","");
+  if(/^[0-9a-f]{3}$/i.test(s))s=s.split("").map(c=>c+c).join("");
+  return /^[0-9a-f]{6}$/i.test(s)?[parseInt(s.slice(0,2),16),parseInt(s.slice(2,4),16),parseInt(s.slice(4,6),16)]:null;
+}
+function cssColor(rgb){return `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`}
+function mix(a,b,t){t=Math.max(0,Math.min(1,t));return [0,1,2].map(i=>Math.round(a[i]*(1-t)+b[i]*t))}
+
+function edt1d(f,n){
+  const d=new Float64Array(n),v=new Int32Array(n),z=new Float64Array(n+1);let k=0;
+  v[0]=0;z[0]=-Infinity;z[1]=Infinity;
+  for(let q=1;q<n;q++){
+    let s;
+    do{const p=v[k];s=((f[q]+q*q)-(f[p]+p*p))/(2*q-2*p);if(s<=z[k])k--}while(s<=z[k]);
+    k++;v[k]=q;z[k]=s;z[k+1]=Infinity;
+  }
+  k=0;for(let q=0;q<n;q++){while(z[k+1]<q)k++;const dx=q-v[k];d[q]=dx*dx+f[v[k]]}
+  return d;
+}
+function distanceTransform(binary){
+  const INF=1e15,tmp=new Float64Array(W*H),result=new Float32Array(W*H),f=new Float64Array(Math.max(W,H));
+  for(let y=0;y<H;y++){
+    const row=y*W;for(let x=0;x<W;x++)f[x]=binary[row+x]?INF:0;
+    const d=edt1d(f,W);for(let x=0;x<W;x++)tmp[row+x]=d[x];
+  }
+  for(let x=0;x<W;x++){
+    for(let y=0;y<H;y++)f[y]=tmp[y*W+x];
+    const d=edt1d(f,H);for(let y=0;y<H;y++)result[y*W+x]=Math.sqrt(d[y]);
+  }
+  return result;
+}
+
+function setTextStyle(target){
+  target.font=`${layout.weight} ${layout.size}px "${layout.family}"`;
+  target.textAlign="left";target.textBaseline="alphabetic";
+}
+function measureTrackedText(target,text,spacing){
+  const glyphs=Array.from(text),naturalWidth=target.measureText(text).width;
+  return {glyphs,naturalWidth,totalWidth:Math.max(1,naturalWidth+spacing*Math.max(0,glyphs.length-1))};
+}
+function positionGlyphs(target,text,spacing,centerX){
+  const chars=Array.from(text),naturalWidth=target.measureText(text).width;
+  const left=centerX-(naturalWidth+spacing*Math.max(0,chars.length-1))/2,glyphs=[];
+  let prefix="",prefixWidth=0;
+  for(let i=0;i<chars.length;i++){
+    const char=chars[i],charWidth=target.measureText(char).width;
+    const nextPrefix=prefix+char,nextWidth=target.measureText(nextPrefix).width;
+    const kerning=nextWidth-prefixWidth-charWidth;
+    glyphs.push({char,x:left+prefixWidth+kerning+spacing*i});
+    prefix=nextPrefix;prefixWidth=nextWidth;
+  }
+  return glyphs;
+}
+function fillGlyphs(target){
+  setTextStyle(target);
+  for(const glyph of layout.glyphs)target.fillText(glyph.char,glyph.x,layout.y);
+}
+function makeMask(){
+  mctx.clearRect(0,0,W,H);mctx.fillStyle="#fff";
+  const text=$("text").value||"RRIM",family=localFont||$("font").value,weight=$("weight").value,spacing=+$("letterSpacing").value;
+  let size=+$("fs").value;
+  for(let pass=0;pass<3;pass++){
+    mctx.font=`${weight} ${size}px "${family}"`;
+    const metrics=mctx.measureText(text),tracked=measureTrackedText(mctx,text,spacing);
+    const measuredHeight=(metrics.actualBoundingBoxAscent||size*.75)+(metrics.actualBoundingBoxDescent||size*.25);
+    const factor=Math.min(1,W*.88/tracked.totalWidth,H*.72/Math.max(1,measuredHeight));
+    if(factor>=.999)break;size*=factor;
+  }
+  mctx.font=`${weight} ${size}px "${family}"`;const metrics=mctx.measureText(text);
+  const ascent=metrics.actualBoundingBoxAscent||size*.75,descent=metrics.actualBoundingBoxDescent||size*.25;
+  layout={text,family,weight,size,spacing,y:(H+ascent-descent)/2};
+  setTextStyle(mctx);layout.glyphs=positionGlyphs(mctx,text,spacing,W/2);fillGlyphs(mctx);
+  const rgba=mctx.getImageData(0,0,W,H).data;
+  const binary=new Uint8Array(W*H),alpha=new Uint8Array(W*H);
+  for(let i=0;i<binary.length;i++){alpha[i]=rgba[i*4+3];binary[i]=alpha[i]>=96?1:0}
+  return {binary,alpha};
+}
+
+function recursiveOffsets(){
+  const scale=+$('spacing').value/7,offsets=[];let accumulated=0;
+  for(const distance of BUFFER_DISTANCES){
+    accumulated+=distance*scale;
+    if(accumulated>=maxDistance-.4)break;
+    offsets.push(accumulated);
+  }
+  return offsets;
+}
+function strokeGlyphs(target,width,color,operation){
+  target.globalCompositeOperation=operation;target.strokeStyle=color;target.lineWidth=width;
+  target.lineJoin="round";target.lineCap="round";setTextStyle(target);
+  for(const glyph of layout.glyphs)target.strokeText(glyph.char,glyph.x,layout.y);
+}
+
+function buildLineLayer(offsets,whiteLines=false){
+  lctx.globalCompositeOperation="source-over";lctx.clearRect(0,0,W,H);
+  const start=hex($("c1").value)||[230,0,18],end=hex($("c2").value)||[101,0,8],width=+$("lineWidth").value;
+  for(let i=offsets.length-1;i>=0;i--){
+    const distance=offsets[i];let t=offsets.length>1?i/(offsets.length-1):0;
+    if($("reverse").checked)t=1-t;
+    const color=whiteLines?"#fff":cssColor($("gradient").checked?mix(start,end,t):start);
+    strokeGlyphs(lctx,2*distance+width,color,"source-over");
+    const innerWidth=2*distance-width;
+    if(innerWidth>0)strokeGlyphs(lctx,innerWidth,"#000","destination-out");
+  }
+  lctx.globalCompositeOperation="destination-in";lctx.drawImage(mask,0,0);
+  lctx.globalCompositeOperation="source-over";
+}
+
+function drawDistanceFill(){
+  const image=ctx.createImageData(W,H),data=image.data;
+  const start=hex($("c1").value)||[230,0,18],end=hex($("c2").value)||[101,0,8],background=hex($("bg").value)||[255,255,255];
+  const transparent=$("transparent").checked,mode=$("mode").value,useGradient=$("gradient").checked||mode==="distance";
+  for(let i=0;i<distanceField.length;i++){
+    const p=i*4;
+    if(!binaryMask[i]){
+      data[p]=background[0];data[p+1]=background[1];data[p+2]=background[2];data[p+3]=transparent?0:255;continue;
+    }
+    let t=distanceField[i]/maxDistance;if($("reverse").checked)t=1-t;
+    const color=useGradient?mix(start,end,t):start;
+    data[p]=color[0];data[p+1]=color[1];data[p+2]=color[2];data[p+3]=maskAlpha[i];
+  }
+  ctx.putImageData(image,0,0);
+}
+
+function paint(){
+  if(!distanceField||!layout)return;
+  const started=performance.now(),offsets=recursiveOffsets(),mode=$("mode").value;
+  ctx.clearRect(0,0,W,H);
+  if(mode==="lines"){
+    if(!$("transparent").checked){ctx.fillStyle=$("bg").value;ctx.fillRect(0,0,W,H)}
+    buildLineLayer(offsets,false);ctx.drawImage(lines,0,0);
+  }else{
+    drawDistanceFill();
+    if(mode==="fill"){buildLineLayer(offsets,true);ctx.drawImage(lines,0,0)}
+  }
+  $("status").textContent=`再帰バッファー ${offsets.length}段・最大内接距離 ${maxDistance.toFixed(1)} px・描画 ${(performance.now()-started).toFixed(0)} ms`;
+}
+
+async function render(){
+  const token=++generation,button=$("run");button.disabled=true;$("status").textContent="文字輪郭を解析中…";
+  await new Promise(resolve=>requestAnimationFrame(resolve));
+  const started=performance.now(),made=makeMask(),field=distanceTransform(made.binary);
+  if(token!==generation)return;
+  let maximum=1;for(let i=0;i<field.length;i++)if(field[i]>maximum)maximum=field[i];
+  binaryMask=made.binary;maskAlpha=made.alpha;distanceField=field;maxDistance=maximum;
+  paint();button.disabled=false;$("status").textContent+=`・解析 ${(performance.now()-started).toFixed(0)} ms`;
+}
+
+function bindColor(picker,text){
+  $(picker).addEventListener("input",()=>{$(text).value=$(picker).value;paint()});
+  $(text).addEventListener("change",()=>{const rgb=hex($(text).value);if(!rgb)return;$(picker).value="#"+rgb.map(v=>v.toString(16).padStart(2,"0")).join("");paint()});
+}
+bindColor("c1","c1t");bindColor("c2","c2t");bindColor("bg","bgt");
+
+function updateLabels(){
+  $("fsV").textContent=$("fs").value;
+  $("lsV").textContent=$("letterSpacing").value+" px";
+  $("spV").textContent=(+$("spacing").value/7).toFixed(2)+"×";
+  $("lwV").textContent=$("lineWidth").value;
+}
+["fs","letterSpacing"].forEach(id=>{
+  $(id).addEventListener("input",updateLabels);
+  $(id).addEventListener("change",render);
+});
+["spacing","lineWidth"].forEach(id=>$(id).addEventListener("input",()=>{updateLabels();paint()}));
+["mode","gradient","reverse","transparent"].forEach(id=>$(id).addEventListener("change",paint));
+$("text").addEventListener("keydown",event=>{if(event.key==="Enter")render()});
+
+$("fontFile").addEventListener("change",async event=>{
+  const file=event.target.files[0];if(!file){localFont=null;render();return}
+  try{localFont="Typo2Local";const face=new FontFace(localFont,await file.arrayBuffer());await face.load();document.fonts.add(face);render()}
+  catch(error){localFont=null;$("status").textContent="フォントを読み込めませんでした";console.error(error)}
+});
+$("run").addEventListener("click",render);
+$("png").addEventListener("click",()=>{
+  const safe=($("text").value||"logo").replace(/[\\/:*?"<>|]+/g,"_");
+  const link=document.createElement("a");link.download=safe+"_Typo2Logo.png";link.href=out.toDataURL("image/png");link.click();
+});
+$("reset").addEventListener("click",()=>location.reload());
+
+updateLabels();render();
+</script>
+</body>
+</html>
