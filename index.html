@@ -19,10 +19,10 @@ canvas{display:block;width:100%;height:auto;background:#fff;box-shadow:0 8px 32p
 .status{margin-top:8px;color:#777;font-size:11px;display:flex;justify-content:space-between;gap:12px}
 label{display:block;font-size:12px;font-weight:700;margin:14px 0 5px}
 input[type=text],select,input[type=file]{width:100%;padding:9px;border:1px solid #ccc;border-radius:7px;background:#fff}
-input[type=range]{width:100%;accent-color:#d71920}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+input[type=range]{width:100%;accent-color:#339cff}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .color{display:flex;gap:8px;min-width:0}.color input[type=color]{width:46px;height:38px;flex:0 0 46px;border:0;background:none}.color input[type=text]{min-width:0}
 button{border:0;border-radius:8px;padding:10px 12px;font-weight:700;cursor:pointer}
-button:disabled{opacity:.45;cursor:wait}.primary{background:#d71920;color:white}.secondary{background:#e8e8e5}
+button:disabled{opacity:.45;cursor:wait}.primary{background:#258eea;color:white}.secondary{background:#e8e8e5}
 .buttons{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
 small{color:#777;line-height:1.5}.check{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px}
 footer{min-height:54px;padding:14px 24px;background:#111;color:#aaa;display:flex;align-items:center;justify-content:space-between;gap:18px;font-size:12px}
@@ -55,18 +55,20 @@ footer strong{color:#fff;font-weight:700}footer a{color:#fff;text-decoration:non
 <div><label>BUFFER SCALE <span id="spV"></span></label><input id="spacing" type="range" min="3" max="45" value="14"></div>
 <div><label>LINE WIDTH <span id="lwV"></span></label><input id="lineWidth" type="range" min="1" max="12" value="3"></div>
 </div>
-<label>COMMON / GLYPH COLOR</label>
-<div class="color"><input id="c1" type="color" value="#e60012"><input id="c1t" type="text" value="#e60012"></div>
+<label>GLYPH FILL</label>
+<div class="color"><input id="c1" type="color" value="#339cff"><input id="c1t" type="text" value="#339cff"></div>
 <div class="row">
-<div><label>INNER COLOR</label><div class="color"><input id="c2" type="color" value="#650008"><input id="c2t" type="text" value="#650008"></div></div>
-<div><label>OUTER COLOR</label><div class="color"><input id="c3" type="color" value="#0066cc"><input id="c3t" type="text" value="#0066cc"></div></div>
+<div><label>INNER LINES</label><div class="color"><input id="c2" type="color" value="#95c2ec"><input id="c2t" type="text" value="#95c2ec"></div></div>
+<div><label>OUTER LINES</label><div class="color"><input id="c3" type="color" value="#f3883b"><input id="c3t" type="text" value="#f3883b"></div></div>
 </div>
+<label>GLYPH BOUNDARY</label>
+<div class="color"><input id="c4" type="color" value="#2c2927"><input id="c4t" type="text" value="#2c2927"></div>
 <label>BACKGROUND</label><div class="color"><input id="bg" type="color" value="#ffffff"><input id="bgt" type="text" value="#ffffff"></div>
-<label class="check"><input id="gradient" type="checkbox"> Gradient fill</label>
-<label class="check"><input id="reverse" type="checkbox"> Reverse color order</label>
+<label class="check"><input id="gradient" type="checkbox" checked> Smooth color gradient</label>
+<label class="check"><input id="reverse" type="checkbox"> Reverse gradient</label>
 <label class="check"><input id="transparent" type="checkbox"> Transparent background</label>
 <div class="buttons"><button class="primary" id="run">RUN</button><button class="secondary" id="png">SAVE PNG</button><button class="secondary" id="reset">RESET</button></div>
-<p><small>文字輪郭の内側と外側へ再帰バッファーを適用し、連続した平行線を描きます。共通色と内側／外側の専用色を交互に使用し、「外側のみ」では文字内部を共通色で塗ります。</small></p>
+<p><small>文字輪郭の内側と外側へ再帰バッファーを適用し、連続した平行線を描きます。内側は青系、外側はオレンジ系を基準に、湖岸線からの距離に応じて滑らかに色を補間します。「外側のみ」でも文字内部の色を独立して指定できます。</small></p>
 </aside>
 <section class="preview"><div class="stage"><canvas id="out" width="1600" height="800"></canvas><div class="status"><span id="status">準備中</span><span>1600 × 800 px</span></div></div></section>
 </main>
@@ -183,17 +185,27 @@ function strokeGlyphs(target,width,color,operation){
   for(const glyph of layout.glyphs)target.strokeText(glyph.char,glyph.x,layout.y);
 }
 
-function linePair(side){
-  const common=hex($("c1").value)||[230,0,18];
-  const accent=hex($(side==="inside"?"c2":"c3").value)||(side==="inside"?[101,0,8]:[0,102,204]);
-  return $("reverse").checked?[accent,common]:[common,accent];
+function lineColor(side,index,count){
+  const glyph=hex($("c1").value)||[51,156,255];
+  const inner=hex($("c2").value)||[149,194,236];
+  const outer=hex($("c3").value)||[243,136,59];
+  const background=hex($("bg").value)||[255,255,255];
+  if(!$("gradient").checked)return side==="inside"?inner:outer;
+  let t=count>1?index/(count-1):0;
+  if($("reverse").checked)t=1-t;
+  if(side==="inside"){
+    const near=mix(glyph,inner,.38);
+    const deep=mix(inner,background,.22);
+    return mix(near,deep,t);
+  }
+  return mix(outer,mix(outer,background,.58),t);
 }
 
 function buildLineLayer(offsets,side){
   lctx.globalCompositeOperation="source-over";lctx.clearRect(0,0,W,H);
-  const pair=linePair(side),width=+$("lineWidth").value;
+  const width=+$("lineWidth").value;
   for(let i=offsets.length-1;i>=0;i--){
-    const distance=offsets[i],color=cssColor(pair[i%2]);
+    const distance=offsets[i],color=cssColor(lineColor(side,i,offsets.length));
     strokeGlyphs(lctx,2*distance+width,color,"source-over");
     const innerWidth=2*distance-width;
     if(innerWidth>0)strokeGlyphs(lctx,innerWidth,color,"destination-out");
@@ -208,9 +220,14 @@ function drawLineRegions(innerOffsets,outerOffsets){
   if(region!=="inside"){buildLineLayer(outerOffsets,"outside");ctx.drawImage(lines,0,0)}
 }
 
+function drawGlyphBoundary(){
+  const color=hex($("c4").value)||[44,41,39];
+  strokeGlyphs(ctx,Math.max(2,+$("lineWidth").value*1.35),cssColor(color),"source-over");
+}
+
 function drawDistanceFill(){
   const image=ctx.createImageData(W,H),data=image.data;
-  const start=hex($("c1").value)||[230,0,18],end=hex($("c2").value)||[101,0,8],background=hex($("bg").value)||[255,255,255];
+  const start=hex($("c1").value)||[51,156,255],end=hex($("c2").value)||[149,194,236],background=hex($("bg").value)||[255,255,255];
   const transparent=$("transparent").checked,mode=$("mode").value,useGradient=$("gradient").checked||mode==="distance";
   const forceCommon=mode==="fill"&&$("lineRegion").value==="outside";
   for(let i=0;i<distanceField.length;i++){
@@ -231,12 +248,13 @@ function paint(){
   ctx.clearRect(0,0,W,H);
   if(mode==="lines"){
     if(!$("transparent").checked){ctx.fillStyle=$("bg").value;ctx.fillRect(0,0,W,H)}
-    if($("lineRegion").value==="outside"){ctx.fillStyle=$("c1").value;fillGlyphs(ctx)}
+    ctx.fillStyle=$("c1").value;fillGlyphs(ctx);
     drawLineRegions(innerOffsets,outerOffsets);
   }else{
     drawDistanceFill();
     if(mode==="fill")drawLineRegions(innerOffsets,outerOffsets);
   }
+  drawGlyphBoundary();
   const region=$("lineRegion").value,levels=region==="inside"?`内側 ${innerOffsets.length}段`:region==="outside"?`外側 ${outerOffsets.length}段`:`内側 ${innerOffsets.length}段・外側 ${outerOffsets.length}段`;
   $("status").textContent=`再帰バッファー ${levels}・最大内接距離 ${maxDistance.toFixed(1)} px・描画 ${(performance.now()-started).toFixed(0)} ms`;
 }
@@ -255,7 +273,7 @@ function bindColor(picker,text){
   $(picker).addEventListener("input",()=>{$(text).value=$(picker).value;paint()});
   $(text).addEventListener("change",()=>{const rgb=hex($(text).value);if(!rgb)return;$(picker).value="#"+rgb.map(v=>v.toString(16).padStart(2,"0")).join("");paint()});
 }
-bindColor("c1","c1t");bindColor("c2","c2t");bindColor("c3","c3t");bindColor("bg","bgt");
+bindColor("c1","c1t");bindColor("c2","c2t");bindColor("c3","c3t");bindColor("c4","c4t");bindColor("bg","bgt");
 
 function updateLabels(){
   $("fsV").textContent=$("fs").value;
