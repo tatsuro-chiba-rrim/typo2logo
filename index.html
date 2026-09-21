@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="author" content="千葉達朗（Tatsuro Chiba）">
-<meta name="description" content="Typography logo generator using recursive inward buffers.">
+<meta name="description" content="Typography logo generator using recursive inward and outward buffers.">
 <title>Typo2Logo</title>
 <style>
 :root{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#171717;background:#f4f4f2}
 *{box-sizing:border-box}body{margin:0}
 header{padding:18px 24px;background:#111;color:#fff;display:flex;justify-content:space-between;align-items:center}
 header b{font-size:22px;letter-spacing:.04em}header span{font-size:12px;color:#aaa}
-main{display:grid;grid-template-columns:320px 1fr;min-height:calc(100vh - 116px)}
+main{display:grid;grid-template-columns:360px 1fr;min-height:calc(100vh - 116px)}
 aside{padding:20px;background:#fff;border-right:1px solid #ddd;overflow:auto}
 .preview{display:flex;align-items:center;justify-content:center;padding:28px;min-width:0}
 .stage{width:min(100%,1120px)}
@@ -20,7 +20,7 @@ canvas{display:block;width:100%;height:auto;background:#fff;box-shadow:0 8px 32p
 label{display:block;font-size:12px;font-weight:700;margin:14px 0 5px}
 input[type=text],select,input[type=file]{width:100%;padding:9px;border:1px solid #ccc;border-radius:7px;background:#fff}
 input[type=range]{width:100%;accent-color:#d71920}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.color{display:flex;gap:8px}.color input[type=color]{width:46px;height:38px;border:0;background:none}
+.color{display:flex;gap:8px;min-width:0}.color input[type=color]{width:46px;height:38px;flex:0 0 46px;border:0;background:none}.color input[type=text]{min-width:0}
 button{border:0;border-radius:8px;padding:10px 12px;font-weight:700;cursor:pointer}
 button:disabled{opacity:.45;cursor:wait}.primary{background:#d71920;color:white}.secondary{background:#e8e8e5}
 .buttons{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
@@ -47,22 +47,26 @@ footer strong{color:#fff;font-weight:700}footer a{color:#fff;text-decoration:non
 <div><label>WEIGHT</label><select id="weight"><option>900</option><option>800</option><option>700</option><option>600</option><option>400</option></select></div>
 </div>
 <label>LETTER SPACING <span id="lsV"></span></label><input id="letterSpacing" type="range" min="-60" max="160" value="0" step="1">
-<label>MODE</label>
-<select id="mode"><option value="lines">Waterline</option><option value="fill">Fill + Waterline</option><option value="distance">Distance field</option></select>
+<div class="row">
+<div><label>MODE</label><select id="mode"><option value="lines">Waterline</option><option value="fill">Fill + Waterline</option><option value="distance">Distance field</option></select></div>
+<div><label>LINE REGION</label><select id="lineRegion"><option value="inside">Inside</option><option value="outside">Outside</option><option value="both" selected>Inside + Outside</option></select></div>
+</div>
 <div class="row">
 <div><label>BUFFER SCALE <span id="spV"></span></label><input id="spacing" type="range" min="3" max="45" value="14"></div>
 <div><label>LINE WIDTH <span id="lwV"></span></label><input id="lineWidth" type="range" min="1" max="12" value="3"></div>
 </div>
+<label>COMMON / GLYPH COLOR</label>
+<div class="color"><input id="c1" type="color" value="#e60012"><input id="c1t" type="text" value="#e60012"></div>
 <div class="row">
-<div><label>START COLOR</label><div class="color"><input id="c1" type="color" value="#e60012"><input id="c1t" type="text" value="#e60012"></div></div>
-<div><label>END COLOR</label><div class="color"><input id="c2" type="color" value="#650008"><input id="c2t" type="text" value="#650008"></div></div>
+<div><label>INNER COLOR</label><div class="color"><input id="c2" type="color" value="#650008"><input id="c2t" type="text" value="#650008"></div></div>
+<div><label>OUTER COLOR</label><div class="color"><input id="c3" type="color" value="#0066cc"><input id="c3t" type="text" value="#0066cc"></div></div>
 </div>
 <label>BACKGROUND</label><div class="color"><input id="bg" type="color" value="#ffffff"><input id="bgt" type="text" value="#ffffff"></div>
-<label class="check"><input id="gradient" type="checkbox"> Gradient</label>
-<label class="check"><input id="reverse" type="checkbox"> Reverse gradient</label>
+<label class="check"><input id="gradient" type="checkbox"> Gradient fill</label>
+<label class="check"><input id="reverse" type="checkbox"> Reverse color order</label>
 <label class="check"><input id="transparent" type="checkbox"> Transparent background</label>
 <div class="buttons"><button class="primary" id="run">RUN</button><button class="secondary" id="png">SAVE PNG</button><button class="secondary" id="reset">RESET</button></div>
-<p><small>文字輪郭へ負のバッファーを再帰的に適用し、連続した平行線を描きます。線分の接続処理や画素の剰余判定は使用しません。</small></p>
+<p><small>文字輪郭の内側と外側へ再帰バッファーを適用し、連続した平行線を描きます。共通色と内側／外側の専用色を交互に使用し、「外側のみ」では文字内部を共通色で塗ります。</small></p>
 </aside>
 <section class="preview"><div class="stage"><canvas id="out" width="1600" height="800"></canvas><div class="status"><span id="status">準備中</span><span>1600 × 800 px</span></div></div></section>
 </main>
@@ -154,15 +158,21 @@ function makeMask(){
   setTextStyle(mctx);layout.glyphs=positionGlyphs(mctx,text,spacing,W/2);fillGlyphs(mctx);
   const rgba=mctx.getImageData(0,0,W,H).data;
   const binary=new Uint8Array(W*H),alpha=new Uint8Array(W*H);
-  for(let i=0;i<binary.length;i++){alpha[i]=rgba[i*4+3];binary[i]=alpha[i]>=96?1:0}
+  let minX=W,minY=H,maxX=-1,maxY=-1;
+  for(let i=0;i<binary.length;i++){
+    alpha[i]=rgba[i*4+3];binary[i]=alpha[i]>=96?1:0;
+    if(binary[i]){const x=i%W,y=(i/W)|0;if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y}
+  }
+  const margin=maxX>=0?Math.min(minX,minY,W-1-maxX,H-1-maxY):40;
+  layout.outerLimit=Math.max(4,margin-6);
   return {binary,alpha};
 }
 
-function recursiveOffsets(){
+function recursiveOffsets(limit){
   const scale=+$('spacing').value/7,offsets=[];let accumulated=0;
   for(const distance of BUFFER_DISTANCES){
     accumulated+=distance*scale;
-    if(accumulated>=maxDistance-.4)break;
+    if(accumulated>=limit-.4)break;
     offsets.push(accumulated);
   }
   return offsets;
@@ -173,32 +183,43 @@ function strokeGlyphs(target,width,color,operation){
   for(const glyph of layout.glyphs)target.strokeText(glyph.char,glyph.x,layout.y);
 }
 
-function buildLineLayer(offsets,whiteLines=false){
+function linePair(side){
+  const common=hex($("c1").value)||[230,0,18];
+  const accent=hex($(side==="inside"?"c2":"c3").value)||(side==="inside"?[101,0,8]:[0,102,204]);
+  return $("reverse").checked?[accent,common]:[common,accent];
+}
+
+function buildLineLayer(offsets,side){
   lctx.globalCompositeOperation="source-over";lctx.clearRect(0,0,W,H);
-  const start=hex($("c1").value)||[230,0,18],end=hex($("c2").value)||[101,0,8],width=+$("lineWidth").value;
+  const pair=linePair(side),width=+$("lineWidth").value;
   for(let i=offsets.length-1;i>=0;i--){
-    const distance=offsets[i];let t=offsets.length>1?i/(offsets.length-1):0;
-    if($("reverse").checked)t=1-t;
-    const color=whiteLines?"#fff":cssColor($("gradient").checked?mix(start,end,t):start);
+    const distance=offsets[i],color=cssColor(pair[i%2]);
     strokeGlyphs(lctx,2*distance+width,color,"source-over");
     const innerWidth=2*distance-width;
-    if(innerWidth>0)strokeGlyphs(lctx,innerWidth,"#000","destination-out");
+    if(innerWidth>0)strokeGlyphs(lctx,innerWidth,color,"destination-out");
   }
-  lctx.globalCompositeOperation="destination-in";lctx.drawImage(mask,0,0);
+  lctx.globalCompositeOperation=side==="inside"?"destination-in":"destination-out";lctx.drawImage(mask,0,0);
   lctx.globalCompositeOperation="source-over";
+}
+
+function drawLineRegions(innerOffsets,outerOffsets){
+  const region=$("lineRegion").value;
+  if(region!=="outside"){buildLineLayer(innerOffsets,"inside");ctx.drawImage(lines,0,0)}
+  if(region!=="inside"){buildLineLayer(outerOffsets,"outside");ctx.drawImage(lines,0,0)}
 }
 
 function drawDistanceFill(){
   const image=ctx.createImageData(W,H),data=image.data;
   const start=hex($("c1").value)||[230,0,18],end=hex($("c2").value)||[101,0,8],background=hex($("bg").value)||[255,255,255];
   const transparent=$("transparent").checked,mode=$("mode").value,useGradient=$("gradient").checked||mode==="distance";
+  const forceCommon=mode==="fill"&&$("lineRegion").value==="outside";
   for(let i=0;i<distanceField.length;i++){
     const p=i*4;
     if(!binaryMask[i]){
       data[p]=background[0];data[p+1]=background[1];data[p+2]=background[2];data[p+3]=transparent?0:255;continue;
     }
     let t=distanceField[i]/maxDistance;if($("reverse").checked)t=1-t;
-    const color=useGradient?mix(start,end,t):start;
+    const color=forceCommon?start:(useGradient?mix(start,end,t):start);
     data[p]=color[0];data[p+1]=color[1];data[p+2]=color[2];data[p+3]=maskAlpha[i];
   }
   ctx.putImageData(image,0,0);
@@ -206,16 +227,18 @@ function drawDistanceFill(){
 
 function paint(){
   if(!distanceField||!layout)return;
-  const started=performance.now(),offsets=recursiveOffsets(),mode=$("mode").value;
+  const started=performance.now(),innerOffsets=recursiveOffsets(maxDistance),outerOffsets=recursiveOffsets(layout.outerLimit),mode=$("mode").value;
   ctx.clearRect(0,0,W,H);
   if(mode==="lines"){
     if(!$("transparent").checked){ctx.fillStyle=$("bg").value;ctx.fillRect(0,0,W,H)}
-    buildLineLayer(offsets,false);ctx.drawImage(lines,0,0);
+    if($("lineRegion").value==="outside"){ctx.fillStyle=$("c1").value;fillGlyphs(ctx)}
+    drawLineRegions(innerOffsets,outerOffsets);
   }else{
     drawDistanceFill();
-    if(mode==="fill"){buildLineLayer(offsets,true);ctx.drawImage(lines,0,0)}
+    if(mode==="fill")drawLineRegions(innerOffsets,outerOffsets);
   }
-  $("status").textContent=`再帰バッファー ${offsets.length}段・最大内接距離 ${maxDistance.toFixed(1)} px・描画 ${(performance.now()-started).toFixed(0)} ms`;
+  const region=$("lineRegion").value,levels=region==="inside"?`内側 ${innerOffsets.length}段`:region==="outside"?`外側 ${outerOffsets.length}段`:`内側 ${innerOffsets.length}段・外側 ${outerOffsets.length}段`;
+  $("status").textContent=`再帰バッファー ${levels}・最大内接距離 ${maxDistance.toFixed(1)} px・描画 ${(performance.now()-started).toFixed(0)} ms`;
 }
 
 async function render(){
@@ -232,7 +255,7 @@ function bindColor(picker,text){
   $(picker).addEventListener("input",()=>{$(text).value=$(picker).value;paint()});
   $(text).addEventListener("change",()=>{const rgb=hex($(text).value);if(!rgb)return;$(picker).value="#"+rgb.map(v=>v.toString(16).padStart(2,"0")).join("");paint()});
 }
-bindColor("c1","c1t");bindColor("c2","c2t");bindColor("bg","bgt");
+bindColor("c1","c1t");bindColor("c2","c2t");bindColor("c3","c3t");bindColor("bg","bgt");
 
 function updateLabels(){
   $("fsV").textContent=$("fs").value;
@@ -245,7 +268,7 @@ function updateLabels(){
   $(id).addEventListener("change",render);
 });
 ["spacing","lineWidth"].forEach(id=>$(id).addEventListener("input",()=>{updateLabels();paint()}));
-["mode","gradient","reverse","transparent"].forEach(id=>$(id).addEventListener("change",paint));
+["mode","lineRegion","gradient","reverse","transparent"].forEach(id=>$(id).addEventListener("change",paint));
 $("text").addEventListener("keydown",event=>{if(event.key==="Enter")render()});
 
 $("fontFile").addEventListener("change",async event=>{
