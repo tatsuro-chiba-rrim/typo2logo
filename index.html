@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="author" content="千葉達朗（Tatsuro Chiba）">
-<meta name="description" content="Typography logo generator using recursive inward and outward buffers.">
+<meta name="description" content="Text and image logo generator using recursive inward and outward buffers.">
 <title>Typo2Logo</title>
 <style>
 :root{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#171717;background:#f4f4f2}
@@ -25,15 +25,19 @@ button{border:0;border-radius:8px;padding:10px 12px;font-weight:700;cursor:point
 button:disabled{opacity:.45;cursor:wait}.primary{background:#258eea;color:white}.secondary{background:#e8e8e5}
 .buttons{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
 small{color:#777;line-height:1.5}.check{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px}
+.source-panel[hidden]{display:none}.source-panel{padding-bottom:2px}.image-note{display:block;margin-top:6px}
 footer{min-height:54px;padding:14px 24px;background:#111;color:#aaa;display:flex;align-items:center;justify-content:space-between;gap:18px;font-size:12px}
 footer strong{color:#fff;font-weight:700}footer a{color:#fff;text-decoration:none;border-bottom:1px solid #777;padding-bottom:1px}footer a:hover{border-color:#fff}
 @media(max-width:760px){main{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid #ddd}.preview{padding:12px}footer{align-items:flex-start;flex-direction:column;gap:6px}}
 </style>
 </head>
 <body>
-<header><b>Typo2Logo</b><span>recursive-buffer typography</span></header>
+<header><b>Typo2Logo</b><span>recursive-buffer logo maker</span></header>
 <main>
 <aside>
+<label>SOURCE</label>
+<select id="sourceType"><option value="text">Text + Font</option><option value="image">Image</option></select>
+<div id="textSource" class="source-panel">
 <label>TEXT</label><input id="text" type="text" value="RRIM">
 <label>FONT</label>
 <select id="font">
@@ -47,6 +51,16 @@ footer strong{color:#fff;font-weight:700}footer a{color:#fff;text-decoration:non
 <div><label>WEIGHT</label><select id="weight"><option>900</option><option>800</option><option>700</option><option>600</option><option>400</option></select></div>
 </div>
 <label>LETTER SPACING <span id="lsV"></span></label><input id="letterSpacing" type="range" min="-60" max="160" value="0" step="1">
+</div>
+<div id="imageSource" class="source-panel" hidden>
+<label>IMAGE FILE</label><input id="imageFile" type="file" accept="image/*">
+<small class="image-note">透明PNGは透明度を、JPEGなどは明るさを自動的にマスクへ変換します。</small>
+<div class="row">
+<div><label>IMAGE SIZE <span id="imageScaleV"></span></label><input id="imageScale" type="range" min="20" max="130" value="100" step="1"></div>
+<div><label>THRESHOLD <span id="thresholdV"></span></label><input id="threshold" type="range" min="0" max="254" value="220" step="1"></div>
+</div>
+<label class="check"><input id="imageInvert" type="checkbox"> Invert brightness mask</label>
+</div>
 <div class="row">
 <div><label>MODE</label><select id="mode"><option value="lines">Waterline</option><option value="fill">Fill + Waterline</option><option value="distance">Distance field</option></select></div>
 <div><label>LINE REGION</label><select id="lineRegion"><option value="inside">Inside</option><option value="outside">Outside</option><option value="both" selected>Inside + Outside</option></select></div>
@@ -68,7 +82,7 @@ footer strong{color:#fff;font-weight:700}footer a{color:#fff;text-decoration:non
 <label class="check"><input id="reverse" type="checkbox"> Reverse gradient</label>
 <label class="check"><input id="transparent" type="checkbox"> Transparent background</label>
 <div class="buttons"><button class="primary" id="run">RUN</button><button class="secondary" id="png">SAVE PNG</button><button class="secondary" id="reset">RESET</button></div>
-<p><small>文字輪郭の内側と外側へ再帰バッファーを適用し、連続した平行線を描きます。内側は青系、外側はオレンジ系を基準に、湖岸線からの距離に応じて滑らかに色を補間します。「外側のみ」でも文字内部の色を独立して指定できます。</small></p>
+<p><small>文字または画像の輪郭を「湖岸線」として、内側と外側へ再帰バッファー状の平行線を描きます。画像は大きさと二値化スレッショルドを調整できます。線色は湖岸線からの距離に応じて滑らかに補間します。</small></p>
 </aside>
 <section class="preview"><div class="stage"><canvas id="out" width="1600" height="800"></canvas><div class="status"><span id="status">準備中</span><span>1600 × 800 px</span></div></div></section>
 </main>
@@ -83,8 +97,10 @@ const mask=document.createElement("canvas");mask.width=W;mask.height=H;
 const mctx=mask.getContext("2d",{alpha:true,willReadFrequently:true});
 const lines=document.createElement("canvas");lines.width=W;lines.height=H;
 const lctx=lines.getContext("2d",{alpha:true});
+const sourceFill=document.createElement("canvas");sourceFill.width=W;sourceFill.height=H;
+const fctx=sourceFill.getContext("2d",{alpha:true});
 const BUFFER_DISTANCES=[0.5,1,1.5,2,2.5,3,4,5,6,7,9,11,13,17,21,25,30];
-let localFont=null,binaryMask=null,maskAlpha=null,distanceField=null,maxDistance=1,layout=null,generation=0;
+let localFont=null,sourceImage=null,imageFileName="image",binaryMask=null,maskAlpha=null,distanceField=null,outsideDistanceField=null,maxDistance=1,layout=null,generation=0,imageRenderTimer=null;
 
 function hex(value){
   let s=String(value).trim().replace("#","");
@@ -143,7 +159,17 @@ function fillGlyphs(target){
   setTextStyle(target);
   for(const glyph of layout.glyphs)target.fillText(glyph.char,glyph.x,layout.y);
 }
-function makeMask(){
+function sourceIsImage(){return $("sourceType").value==="image"}
+function maskBounds(binary){
+  let minX=W,minY=H,maxX=-1,maxY=-1,count=0;
+  for(let i=0;i<binary.length;i++)if(binary[i]){
+    const x=i%W,y=(i/W)|0;count++;
+    if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y;
+  }
+  if(!count)return null;
+  return {minX,minY,maxX,maxY,count,margin:Math.min(minX,minY,W-1-maxX,H-1-maxY)};
+}
+function makeTextMask(){
   mctx.clearRect(0,0,W,H);mctx.fillStyle="#fff";
   const text=$("text").value||"RRIM",family=localFont||$("font").value,weight=$("weight").value,spacing=+$("letterSpacing").value;
   let size=+$("fs").value;
@@ -156,19 +182,54 @@ function makeMask(){
   }
   mctx.font=`${weight} ${size}px "${family}"`;const metrics=mctx.measureText(text);
   const ascent=metrics.actualBoundingBoxAscent||size*.75,descent=metrics.actualBoundingBoxDescent||size*.25;
-  layout={text,family,weight,size,spacing,y:(H+ascent-descent)/2};
+  layout={kind:"text",text,family,weight,size,spacing,y:(H+ascent-descent)/2};
   setTextStyle(mctx);layout.glyphs=positionGlyphs(mctx,text,spacing,W/2);fillGlyphs(mctx);
   const rgba=mctx.getImageData(0,0,W,H).data;
   const binary=new Uint8Array(W*H),alpha=new Uint8Array(W*H);
-  let minX=W,minY=H,maxX=-1,maxY=-1;
   for(let i=0;i<binary.length;i++){
     alpha[i]=rgba[i*4+3];binary[i]=alpha[i]>=96?1:0;
-    if(binary[i]){const x=i%W,y=(i/W)|0;if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y}
   }
-  const margin=maxX>=0?Math.min(minX,minY,W-1-maxX,H-1-maxY):40;
-  layout.outerLimit=Math.max(4,margin-6);
+  const bounds=maskBounds(binary);
+  layout.outerLimit=Math.max(4,(bounds?bounds.margin:40)-6);
   return {binary,alpha};
 }
+function makeImageMask(){
+  if(!sourceImage)return null;
+  mctx.globalCompositeOperation="source-over";mctx.clearRect(0,0,W,H);
+  mctx.imageSmoothingEnabled=true;mctx.imageSmoothingQuality="high";
+  const fit=Math.min(W*.88/sourceImage.naturalWidth,H*.72/sourceImage.naturalHeight);
+  const scale=fit*(+$('imageScale').value/100);
+  const drawW=Math.max(1,sourceImage.naturalWidth*scale),drawH=Math.max(1,sourceImage.naturalHeight*scale);
+  const drawX=(W-drawW)/2,drawY=(H-drawH)/2;
+  mctx.drawImage(sourceImage,drawX,drawY,drawW,drawH);
+  const source=mctx.getImageData(0,0,W,H),rgba=source.data;
+  const x0=Math.max(0,Math.floor(drawX)),x1=Math.min(W,Math.ceil(drawX+drawW));
+  const y0=Math.max(0,Math.floor(drawY)),y1=Math.min(H,Math.ceil(drawY+drawH));
+  let translucent=0,sampled=0;
+  for(let y=y0;y<y1;y+=2)for(let x=x0;x<x1;x+=2){
+    const a=rgba[(y*W+x)*4+3];sampled++;if(a<250)translucent++;
+  }
+  const useAlpha=sampled>0&&translucent/sampled>.01;
+  const threshold=+$('threshold').value,invert=$('imageInvert').checked;
+  const binary=new Uint8Array(W*H),alpha=new Uint8Array(W*H);
+  for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
+    const i=y*W+x,p=i*4,a=rgba[p+3];let selected;
+    if(useAlpha){selected=a>=threshold}
+    else{
+      const luminance=.2126*rgba[p]+.7152*rgba[p+1]+.0722*rgba[p+2];
+      selected=invert?luminance>=threshold:luminance<=threshold;
+    }
+    if(selected&&a>0){binary[i]=1;alpha[i]=255}
+  }
+  const bounds=maskBounds(binary);
+  if(!bounds)return null;
+  const maskImage=mctx.createImageData(W,H),md=maskImage.data;
+  for(let i=0;i<binary.length;i++)if(binary[i]){const p=i*4;md[p]=255;md[p+1]=255;md[p+2]=255;md[p+3]=255}
+  mctx.clearRect(0,0,W,H);mctx.putImageData(maskImage,0,0);
+  layout={kind:"image",name:imageFileName,maskMode:useAlpha?"透明度":"明るさ",outerLimit:Math.max(4,bounds.margin-6),bounds};
+  return {binary,alpha};
+}
+function makeMask(){return sourceIsImage()?makeImageMask():makeTextMask()}
 
 function recursiveOffsets(limit){
   const scale=+$('spacing').value/7,offsets=[];let accumulated=0;
@@ -183,6 +244,13 @@ function strokeGlyphs(target,width,color,operation){
   target.globalCompositeOperation=operation;target.strokeStyle=color;target.lineWidth=width;
   target.lineJoin="round";target.lineCap="round";setTextStyle(target);
   for(const glyph of layout.glyphs)target.strokeText(glyph.char,glyph.x,layout.y);
+}
+function fillSource(target){
+  if(!sourceIsImage()){fillGlyphs(target);return}
+  fctx.globalCompositeOperation="source-over";fctx.clearRect(0,0,W,H);
+  fctx.fillStyle=target.fillStyle;fctx.fillRect(0,0,W,H);
+  fctx.globalCompositeOperation="destination-in";fctx.drawImage(mask,0,0);
+  fctx.globalCompositeOperation="source-over";target.drawImage(sourceFill,0,0);
 }
 
 function lineColor(side,index,count){
@@ -201,7 +269,7 @@ function lineColor(side,index,count){
   return mix(outer,mix(outer,background,.58),t);
 }
 
-function buildLineLayer(offsets,side){
+function buildTextLineLayer(offsets,side){
   lctx.globalCompositeOperation="source-over";lctx.clearRect(0,0,W,H);
   const width=+$("lineWidth").value;
   for(let i=offsets.length-1;i>=0;i--){
@@ -213,6 +281,39 @@ function buildLineLayer(offsets,side){
   lctx.globalCompositeOperation=side==="inside"?"destination-in":"destination-out";lctx.drawImage(mask,0,0);
   lctx.globalCompositeOperation="source-over";
 }
+function makeBandLookup(offsets,side,width){
+  const resolution=4,softness=.75,limit=Math.ceil((offsets[offsets.length-1]||0)+width+2);
+  const nearest=new Int16Array(limit*resolution+1);nearest.fill(-1);
+  const coverage=new Uint8Array(nearest.length);
+  for(let b=0;b<nearest.length;b++){
+    const distance=b/resolution;let best=Infinity,bestIndex=-1;
+    for(let i=0;i<offsets.length;i++){
+      const delta=Math.abs(distance-offsets[i]);if(delta<best){best=delta;bestIndex=i}
+    }
+    const amount=Math.min(1,Math.max(0,(width/2+softness-best)/softness));
+    if(amount>0){nearest[b]=bestIndex;coverage[b]=Math.round(amount*255)}
+  }
+  return {resolution,nearest,coverage,colors:offsets.map((_,i)=>lineColor(side,i,offsets.length))};
+}
+function buildRasterLineLayer(offsets,side){
+  lctx.globalCompositeOperation="source-over";lctx.clearRect(0,0,W,H);
+  if(!offsets.length)return;
+  const lookup=makeBandLookup(offsets,side,+$("lineWidth").value);
+  const field=side==="inside"?distanceField:outsideDistanceField;
+  const image=lctx.createImageData(W,H),data=image.data;
+  for(let i=0;i<binaryMask.length;i++){
+    if(side==="inside"?!binaryMask[i]:binaryMask[i])continue;
+    const bin=Math.round(field[i]*lookup.resolution);
+    if(bin<0||bin>=lookup.nearest.length)continue;
+    const level=lookup.nearest[bin];if(level<0)continue;
+    const color=lookup.colors[level],p=i*4;
+    data[p]=color[0];data[p+1]=color[1];data[p+2]=color[2];data[p+3]=lookup.coverage[bin];
+  }
+  lctx.putImageData(image,0,0);
+}
+function buildLineLayer(offsets,side){
+  if(sourceIsImage())buildRasterLineLayer(offsets,side);else buildTextLineLayer(offsets,side);
+}
 
 function drawLineRegions(innerOffsets,outerOffsets){
   const region=$("lineRegion").value;
@@ -220,9 +321,21 @@ function drawLineRegions(innerOffsets,outerOffsets){
   if(region!=="inside"){buildLineLayer(outerOffsets,"outside");ctx.drawImage(lines,0,0)}
 }
 
-function drawGlyphBoundary(){
+function drawRasterBoundary(){
+  lctx.globalCompositeOperation="source-over";lctx.clearRect(0,0,W,H);
+  const color=hex($("c4").value)||[44,41,39],width=Math.max(2,+$("lineWidth").value*1.35),half=width/2;
+  const image=lctx.createImageData(W,H),data=image.data;
+  for(let i=0;i<binaryMask.length;i++){
+    const distance=binaryMask[i]?distanceField[i]:outsideDistanceField[i];
+    const amount=Math.min(1,Math.max(0,half+1-distance));if(amount<=0)continue;
+    const p=i*4;data[p]=color[0];data[p+1]=color[1];data[p+2]=color[2];data[p+3]=Math.round(amount*255);
+  }
+  lctx.putImageData(image,0,0);ctx.drawImage(lines,0,0);
+}
+function drawSourceBoundary(){
   const color=hex($("c4").value)||[44,41,39];
-  strokeGlyphs(ctx,Math.max(2,+$("lineWidth").value*1.35),cssColor(color),"source-over");
+  if(sourceIsImage())drawRasterBoundary();
+  else strokeGlyphs(ctx,Math.max(2,+$("lineWidth").value*1.35),cssColor(color),"source-over");
 }
 
 function drawDistanceFill(){
@@ -243,29 +356,47 @@ function drawDistanceFill(){
 }
 
 function paint(){
-  if(!distanceField||!layout)return;
+  if(!distanceField||!layout||layout.kind!==(sourceIsImage()?"image":"text"))return;
   const started=performance.now(),innerOffsets=recursiveOffsets(maxDistance),outerOffsets=recursiveOffsets(layout.outerLimit),mode=$("mode").value;
   ctx.clearRect(0,0,W,H);
   if(mode==="lines"){
     if(!$("transparent").checked){ctx.fillStyle=$("bg").value;ctx.fillRect(0,0,W,H)}
-    ctx.fillStyle=$("c1").value;fillGlyphs(ctx);
+    ctx.fillStyle=$("c1").value;fillSource(ctx);
     drawLineRegions(innerOffsets,outerOffsets);
   }else{
     drawDistanceFill();
     if(mode==="fill")drawLineRegions(innerOffsets,outerOffsets);
   }
-  drawGlyphBoundary();
+  drawSourceBoundary();
   const region=$("lineRegion").value,levels=region==="inside"?`内側 ${innerOffsets.length}段`:region==="outside"?`外側 ${outerOffsets.length}段`:`内側 ${innerOffsets.length}段・外側 ${outerOffsets.length}段`;
-  $("status").textContent=`再帰バッファー ${levels}・最大内接距離 ${maxDistance.toFixed(1)} px・描画 ${(performance.now()-started).toFixed(0)} ms`;
+  const source=sourceIsImage()?`画像 ${layout.maskMode}・閾値 ${$("threshold").value}`:"文字";
+  $("status").textContent=`${source}・再帰バッファー ${levels}・最大内接距離 ${maxDistance.toFixed(1)} px・描画 ${(performance.now()-started).toFixed(0)} ms`;
 }
 
 async function render(){
-  const token=++generation,button=$("run");button.disabled=true;$("status").textContent="文字輪郭を解析中…";
+  const token=++generation,button=$("run");button.disabled=true;
+  if(sourceIsImage()&&!sourceImage){
+    ctx.clearRect(0,0,W,H);if(!$("transparent").checked){ctx.fillStyle=$("bg").value;ctx.fillRect(0,0,W,H)}
+    binaryMask=maskAlpha=distanceField=outsideDistanceField=layout=null;
+    $("status").textContent="画像ファイルを選択してください";button.disabled=false;return;
+  }
+  $("status").textContent=sourceIsImage()?"画像マスクを解析中…":"文字輪郭を解析中…";
   await new Promise(resolve=>requestAnimationFrame(resolve));
-  const started=performance.now(),made=makeMask(),field=distanceTransform(made.binary);
+  const started=performance.now(),made=makeMask();
+  if(!made){
+    binaryMask=maskAlpha=distanceField=outsideDistanceField=layout=null;
+    ctx.clearRect(0,0,W,H);if(!$("transparent").checked){ctx.fillStyle=$("bg").value;ctx.fillRect(0,0,W,H)}
+    $("status").textContent="スレッショルドを調整してください（形状を検出できません）";button.disabled=false;return;
+  }
+  const field=distanceTransform(made.binary);
+  let outside=null;
+  if(sourceIsImage()){
+    const inverse=new Uint8Array(made.binary.length);for(let i=0;i<inverse.length;i++)inverse[i]=made.binary[i]?0:1;
+    outside=distanceTransform(inverse);
+  }
   if(token!==generation)return;
   let maximum=1;for(let i=0;i<field.length;i++)if(field[i]>maximum)maximum=field[i];
-  binaryMask=made.binary;maskAlpha=made.alpha;distanceField=field;maxDistance=maximum;
+  binaryMask=made.binary;maskAlpha=made.alpha;distanceField=field;outsideDistanceField=outside;maxDistance=maximum;
   paint();button.disabled=false;$("status").textContent+=`・解析 ${(performance.now()-started).toFixed(0)} ms`;
 }
 
@@ -278,30 +409,51 @@ bindColor("c1","c1t");bindColor("c2","c2t");bindColor("c3","c3t");bindColor("c4"
 function updateLabels(){
   $("fsV").textContent=$("fs").value;
   $("lsV").textContent=$("letterSpacing").value+" px";
+  $("imageScaleV").textContent=$("imageScale").value+"%";
+  $("thresholdV").textContent=$("threshold").value;
   $("spV").textContent=(+$("spacing").value/7).toFixed(2)+"×";
   $("lwV").textContent=$("lineWidth").value;
+}
+function toggleSourceControls(){
+  const image=sourceIsImage();$("textSource").hidden=image;$("imageSource").hidden=!image;
+}
+function scheduleImageRender(){
+  clearTimeout(imageRenderTimer);imageRenderTimer=setTimeout(()=>{if(sourceIsImage()&&sourceImage)render()},180);
 }
 ["fs","letterSpacing"].forEach(id=>{
   $(id).addEventListener("input",updateLabels);
   $(id).addEventListener("change",render);
 });
+["imageScale","threshold"].forEach(id=>$(id).addEventListener("input",()=>{updateLabels();scheduleImageRender()}));
 ["spacing","lineWidth"].forEach(id=>$(id).addEventListener("input",()=>{updateLabels();paint()}));
 ["mode","lineRegion","gradient","reverse","transparent"].forEach(id=>$(id).addEventListener("change",paint));
+$("sourceType").addEventListener("change",()=>{toggleSourceControls();render()});
+$("imageInvert").addEventListener("change",render);
 $("text").addEventListener("keydown",event=>{if(event.key==="Enter")render()});
+$("font").addEventListener("change",render);$("weight").addEventListener("change",render);
 
 $("fontFile").addEventListener("change",async event=>{
   const file=event.target.files[0];if(!file){localFont=null;render();return}
   try{localFont="Typo2Local";const face=new FontFace(localFont,await file.arrayBuffer());await face.load();document.fonts.add(face);render()}
   catch(error){localFont=null;$("status").textContent="フォントを読み込めませんでした";console.error(error)}
 });
+$("imageFile").addEventListener("change",event=>{
+  const file=event.target.files[0];
+  if(!file){sourceImage=null;imageFileName="image";render();return}
+  const image=new Image(),url=URL.createObjectURL(file);imageFileName=file.name.replace(/\.[^.]+$/,"")||"image";
+  image.onload=()=>{sourceImage=image;URL.revokeObjectURL(url);render()};
+  image.onerror=()=>{URL.revokeObjectURL(url);sourceImage=null;$("status").textContent="画像を読み込めませんでした"};
+  image.src=url;
+});
 $("run").addEventListener("click",render);
 $("png").addEventListener("click",()=>{
-  const safe=($("text").value||"logo").replace(/[\\/:*?"<>|]+/g,"_");
+  const sourceName=sourceIsImage()?imageFileName:($("text").value||"logo");
+  const safe=sourceName.replace(/[\\/:*?"<>|]+/g,"_");
   const link=document.createElement("a");link.download=safe+"_Typo2Logo.png";link.href=out.toDataURL("image/png");link.click();
 });
 $("reset").addEventListener("click",()=>location.reload());
 
-updateLabels();render();
+toggleSourceControls();updateLabels();render();
 </script>
 </body>
 </html>
