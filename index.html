@@ -82,7 +82,7 @@ footer strong{color:#fff;font-weight:700}footer a{color:#fff;text-decoration:non
 <label class="check"><input id="reverse" type="checkbox"> Reverse gradient</label>
 <label class="check"><input id="transparent" type="checkbox"> Transparent background</label>
 <div class="buttons"><button class="primary" id="run">RUN</button><button class="secondary" id="png">SAVE PNG</button><button class="secondary" id="reset">RESET</button></div>
-<p><small>文字または画像の輪郭を「湖岸線」として、内側と外側へ再帰バッファー状の平行線を描きます。画像も高解像度の連続距離面で処理し、線分の継ぎ合わせを使わず滑らかに連続する線にします。線色は湖岸線からの距離に応じて滑らかに補間します。</small></p>
+<p><small>文字または画像の輪郭を「湖岸線」として、内側と外側へ再帰バッファー状の平行線を描きます。画像も高解像度で輪郭を一度だけ連続パス化し、文字と同じストローク差分で滑らかな線にします。線色は湖岸線からの距離に応じて滑らかに補間します。</small></p>
 </aside>
 <section class="preview"><div class="stage"><canvas id="out" width="1600" height="800"></canvas><div class="status"><span id="status">準備中</span><span>1600 × 800 px</span></div></div></section>
 </main>
@@ -98,8 +98,6 @@ const mask=document.createElement("canvas");mask.width=W;mask.height=H;
 const mctx=mask.getContext("2d",{alpha:true,willReadFrequently:true});
 const lines=document.createElement("canvas");lines.width=W;lines.height=H;
 const lctx=lines.getContext("2d",{alpha:true});
-const sourceFill=document.createElement("canvas");sourceFill.width=W;sourceFill.height=H;
-const fctx=sourceFill.getContext("2d",{alpha:true});
 const imageMask=document.createElement("canvas");imageMask.width=IW;imageMask.height=IH;
 const imctx=imageMask.getContext("2d",{alpha:true,willReadFrequently:true});
 const imageLines=document.createElement("canvas");imageLines.width=IW;imageLines.height=IH;
@@ -107,7 +105,7 @@ const ilctx=imageLines.getContext("2d",{alpha:true});
 const imageOutput=document.createElement("canvas");imageOutput.width=IW;imageOutput.height=IH;
 const ioctx=imageOutput.getContext("2d",{alpha:true});
 const BUFFER_DISTANCES=[0.5,1,1.5,2,2.5,3,4,5,6,7,9,11,13,17,21,25,30];
-let localFont=null,sourceImage=null,imageFileName="image",binaryMask=null,maskAlpha=null,distanceField=null,outsideDistanceField=null,maxDistance=1,layout=null,generation=0,imageRenderTimer=null;
+let localFont=null,sourceImage=null,imageFileName="image",imageOutlinePath=null,binaryMask=null,maskAlpha=null,distanceField=null,maxDistance=1,layout=null,generation=0,imageRenderTimer=null;
 
 function hex(value){
   let s=String(value).trim().replace("#","");
@@ -176,6 +174,76 @@ function maskBounds(binary,width=W,height=H){
   if(!count)return null;
   return {minX,minY,maxX,maxY,count,margin:Math.min(minX,minY,width-1-maxX,height-1-maxY)};
 }
+function simplifyOpen(points,tolerance){
+  if(points.length<=2)return points.slice();
+  const keep=new Uint8Array(points.length),stack=[[0,points.length-1]],limit=tolerance*tolerance;
+  keep[0]=keep[points.length-1]=1;
+  while(stack.length){
+    const [first,last]=stack.pop(),a=points[first],b=points[last],dx=b.x-a.x,dy=b.y-a.y,length=dx*dx+dy*dy;
+    let farthest=-1,best=limit;
+    for(let i=first+1;i<last;i++){
+      const p=points[i];let distance;
+      if(length===0){const px=p.x-a.x,py=p.y-a.y;distance=px*px+py*py}
+      else{
+        const t=Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/length));
+        const px=p.x-(a.x+t*dx),py=p.y-(a.y+t*dy);distance=px*px+py*py;
+      }
+      if(distance>best){best=distance;farthest=i}
+    }
+    if(farthest>=0){keep[farthest]=1;stack.push([first,farthest],[farthest,last])}
+  }
+  return points.filter((_,index)=>keep[index]);
+}
+function simplifyClosed(points,tolerance){
+  if(points.length<=4)return points.slice();
+  const farthestFrom=index=>{
+    const origin=points[index];let farthest=index,best=-1;
+    for(let i=0;i<points.length;i++){
+      const dx=points[i].x-origin.x,dy=points[i].y-origin.y,distance=dx*dx+dy*dy;
+      if(distance>best){best=distance;farthest=i}
+    }
+    return farthest;
+  };
+  let first=farthestFrom(0),last=farthestFrom(first);first=farthestFrom(last);
+  const chain=(from,to)=>{const result=[];let i=from;for(;;){result.push(points[i]);if(i===to)break;i=(i+1)%points.length}return result};
+  const a=simplifyOpen(chain(first,last),tolerance),b=simplifyOpen(chain(last,first),tolerance);
+  return a.concat(b.slice(1,-1));
+}
+function traceMaskOutline(binary,width,height){
+  const vertexWidth=width+1,head=new Int32Array(vertexWidth*(height+1));head.fill(-1);
+  const starts=[],ends=[],directions=[],next=[];
+  const add=(start,end,direction)=>{const index=starts.length;starts.push(start);ends.push(end);directions.push(direction);next.push(head[start]);head[start]=index};
+  for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+    const i=y*width+x;if(!binary[i])continue;
+    const top=y*vertexWidth+x,topRight=top+1,bottom=(y+1)*vertexWidth+x,bottomRight=bottom+1;
+    if(y===0||!binary[i-width])add(top,topRight,0);
+    if(x===width-1||!binary[i+1])add(topRight,bottomRight,1);
+    if(y===height-1||!binary[i+width])add(bottomRight,bottom,2);
+    if(x===0||!binary[i-1])add(bottom,top,3);
+  }
+  const path=new Path2D(),used=new Uint8Array(starts.length),turnRank=[1,0,3,2];let loops=0,pointsKept=0;
+  const point=key=>({x:key%vertexWidth,y:(key/vertexWidth)|0});
+  for(let seed=0;seed<starts.length;seed++){
+    if(used[seed])continue;
+    const startKey=starts[seed],outline=[point(startKey)];let edge=seed,closed=false,guard=0;
+    while(edge>=0&&!used[edge]&&guard++<=starts.length){
+      used[edge]=1;const endKey=ends[edge];outline.push(point(endKey));
+      if(endKey===startKey){closed=true;break}
+      let candidate=-1,bestRank=99;
+      for(let nextEdge=head[endKey];nextEdge!==-1;nextEdge=next[nextEdge])if(!used[nextEdge]){
+        const rank=turnRank[(directions[nextEdge]-directions[edge]+4)%4];
+        if(rank<bestRank){bestRank=rank;candidate=nextEdge}
+      }
+      edge=candidate;
+    }
+    if(!closed||outline.length<4)continue;
+    outline.pop();const reduced=simplifyClosed(outline,1.15*IMAGE_SS);
+    if(reduced.length<3)continue;
+    path.moveTo(reduced[0].x,reduced[0].y);for(let i=1;i<reduced.length;i++)path.lineTo(reduced[i].x,reduced[i].y);path.closePath();
+    loops++;pointsKept+=reduced.length;
+  }
+  return {path,loops,pointsKept};
+}
 function makeTextMask(){
   mctx.clearRect(0,0,W,H);mctx.fillStyle="#fff";
   const text=$("text").value||"RRIM",family=localFont||$("font").value,weight=$("weight").value,spacing=+$("letterSpacing").value;
@@ -202,6 +270,7 @@ function makeTextMask(){
 }
 function makeImageMask(){
   if(!sourceImage)return null;
+  imageOutlinePath=null;
   imctx.globalCompositeOperation="source-over";imctx.clearRect(0,0,IW,IH);
   imctx.imageSmoothingEnabled=true;imctx.imageSmoothingQuality="high";
   const fit=Math.min(IW*.88/sourceImage.naturalWidth,IH*.72/sourceImage.naturalHeight);
@@ -233,7 +302,9 @@ function makeImageMask(){
   const maskImage=imctx.createImageData(IW,IH),md=maskImage.data;
   for(let i=0;i<binary.length;i++)if(binary[i]){const p=i*4;md[p]=255;md[p+1]=255;md[p+2]=255;md[p+3]=255}
   imctx.clearRect(0,0,IW,IH);imctx.putImageData(maskImage,0,0);
-  layout={kind:"image",name:imageFileName,maskMode:useAlpha?"透明度":"明るさ",outerLimit:Math.max(4,bounds.margin/IMAGE_SS-6),bounds};
+  const traced=traceMaskOutline(binary,IW,IH);if(!traced.loops)return null;
+  imageOutlinePath=traced.path;
+  layout={kind:"image",name:imageFileName,maskMode:useAlpha?"透明度":"明るさ",outerLimit:Math.max(4,bounds.margin/IMAGE_SS-6),bounds,outlineCount:traced.loops};
   return {binary,alpha};
 }
 function makeMask(){return sourceIsImage()?makeImageMask():makeTextMask()}
@@ -288,36 +359,22 @@ function buildTextLineLayer(offsets,side){
   lctx.globalCompositeOperation=side==="inside"?"destination-in":"destination-out";lctx.drawImage(mask,0,0);
   lctx.globalCompositeOperation="source-over";
 }
-function makeBandLookup(offsets,side,width,scale=1){
-  const scaledOffsets=offsets.map(distance=>distance*scale),scaledWidth=width*scale;
-  const resolution=4,softness=Math.max(1,.75*scale),limit=Math.ceil((scaledOffsets[scaledOffsets.length-1]||0)+scaledWidth+softness+2);
-  const nearest=new Int16Array(limit*resolution+1);nearest.fill(-1);
-  const coverage=new Uint8Array(nearest.length);
-  for(let b=0;b<nearest.length;b++){
-    const distance=b/resolution;let best=Infinity,bestIndex=-1;
-    for(let i=0;i<scaledOffsets.length;i++){
-      const delta=Math.abs(distance-scaledOffsets[i]);if(delta<best){best=delta;bestIndex=i}
-    }
-    const amount=Math.min(1,Math.max(0,(scaledWidth/2+softness-best)/softness));
-    if(amount>0){nearest[b]=bestIndex;coverage[b]=Math.round(amount*255)}
-  }
-  return {resolution,nearest,coverage,colors:offsets.map((_,i)=>lineColor(side,i,offsets.length))};
+function strokeImageOutline(target,width,color,operation){
+  target.globalCompositeOperation=operation;target.strokeStyle=color;target.lineWidth=width*IMAGE_SS;
+  target.lineJoin="round";target.lineCap="round";target.stroke(imageOutlinePath);
 }
 function buildImageLineLayer(offsets,side){
   ilctx.globalCompositeOperation="source-over";ilctx.clearRect(0,0,IW,IH);
   if(!offsets.length)return;
-  const lookup=makeBandLookup(offsets,side,+$("lineWidth").value,IMAGE_SS);
-  const field=side==="inside"?distanceField:outsideDistanceField;
-  const image=ilctx.createImageData(IW,IH),data=image.data;
-  for(let i=0;i<binaryMask.length;i++){
-    if(side==="inside"?!binaryMask[i]:binaryMask[i])continue;
-    const bin=Math.round(field[i]*lookup.resolution);
-    if(bin<0||bin>=lookup.nearest.length)continue;
-    const level=lookup.nearest[bin];if(level<0)continue;
-    const color=lookup.colors[level],p=i*4;
-    data[p]=color[0];data[p+1]=color[1];data[p+2]=color[2];data[p+3]=lookup.coverage[bin];
+  const width=+$("lineWidth").value;
+  for(let i=offsets.length-1;i>=0;i--){
+    const distance=offsets[i],color=cssColor(lineColor(side,i,offsets.length));
+    strokeImageOutline(ilctx,2*distance+width,color,"source-over");
+    const innerWidth=2*distance-width;
+    if(innerWidth>0)strokeImageOutline(ilctx,innerWidth,color,"destination-out");
   }
-  ilctx.putImageData(image,0,0);
+  ilctx.globalCompositeOperation=side==="inside"?"destination-in":"destination-out";ilctx.drawImage(imageMask,0,0);
+  ilctx.globalCompositeOperation="source-over";
 }
 function buildLineLayer(offsets,side){
   if(sourceIsImage())buildImageLineLayer(offsets,side);else buildTextLineLayer(offsets,side);
@@ -332,14 +389,9 @@ function drawLineRegions(innerOffsets,outerOffsets,target){
 
 function drawRasterBoundary(target){
   ilctx.globalCompositeOperation="source-over";ilctx.clearRect(0,0,IW,IH);
-  const color=hex($("c4").value)||[44,41,39],width=Math.max(2,+$("lineWidth").value*1.35)*IMAGE_SS,half=width/2;
-  const image=ilctx.createImageData(IW,IH),data=image.data;
-  for(let i=0;i<binaryMask.length;i++){
-    const distance=binaryMask[i]?distanceField[i]:outsideDistanceField[i];
-    const amount=Math.min(1,Math.max(0,(half+IMAGE_SS-distance)/IMAGE_SS));if(amount<=0)continue;
-    const p=i*4;data[p]=color[0];data[p+1]=color[1];data[p+2]=color[2];data[p+3]=Math.round(amount*255);
-  }
-  ilctx.putImageData(image,0,0);target.drawImage(imageLines,0,0);
+  const color=hex($("c4").value)||[44,41,39];
+  strokeImageOutline(ilctx,Math.max(2,+$("lineWidth").value*1.35),cssColor(color),"source-over");
+  target.drawImage(imageLines,0,0);
 }
 function drawSourceBoundary(target){
   const color=hex($("c4").value)||[44,41,39];
@@ -393,27 +445,22 @@ async function render(){
   const token=++generation,button=$("run");button.disabled=true;
   if(sourceIsImage()&&!sourceImage){
     ctx.clearRect(0,0,W,H);if(!$("transparent").checked){ctx.fillStyle=$("bg").value;ctx.fillRect(0,0,W,H)}
-    binaryMask=maskAlpha=distanceField=outsideDistanceField=layout=null;
+    imageOutlinePath=binaryMask=maskAlpha=distanceField=layout=null;
     $("status").textContent="画像ファイルを選択してください";button.disabled=false;return;
   }
   $("status").textContent=sourceIsImage()?"画像マスクを解析中…":"文字輪郭を解析中…";
   await new Promise(resolve=>requestAnimationFrame(resolve));
   const started=performance.now(),made=makeMask();
   if(!made){
-    binaryMask=maskAlpha=distanceField=outsideDistanceField=layout=null;
+    imageOutlinePath=binaryMask=maskAlpha=distanceField=layout=null;
     ctx.clearRect(0,0,W,H);if(!$("transparent").checked){ctx.fillStyle=$("bg").value;ctx.fillRect(0,0,W,H)}
     $("status").textContent="スレッショルドを調整してください（形状を検出できません）";button.disabled=false;return;
   }
   const imageMode=sourceIsImage(),processWidth=imageMode?IW:W,processHeight=imageMode?IH:H,processScale=imageMode?IMAGE_SS:1;
   const field=distanceTransform(made.binary,processWidth,processHeight);
-  let outside=null;
-  if(imageMode){
-    const inverse=new Uint8Array(made.binary.length);for(let i=0;i<inverse.length;i++)inverse[i]=made.binary[i]?0:1;
-    outside=distanceTransform(inverse,processWidth,processHeight);
-  }
   if(token!==generation)return;
   let maximum=1;for(let i=0;i<field.length;i++)if(field[i]>maximum)maximum=field[i];
-  binaryMask=made.binary;maskAlpha=made.alpha;distanceField=field;outsideDistanceField=outside;maxDistance=maximum/processScale;
+  binaryMask=made.binary;maskAlpha=made.alpha;distanceField=field;maxDistance=maximum/processScale;
   paint();button.disabled=false;$("status").textContent+=`・解析 ${(performance.now()-started).toFixed(0)} ms`;
 }
 
