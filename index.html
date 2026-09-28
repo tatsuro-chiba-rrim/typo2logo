@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="author" content="千葉達朗（Tatsuro Chiba）">
 <meta name="description" content="Text and image logo generator using recursive inward and outward buffers.">
-<title>Typo2Logo</title>
+<title>Typo2Logo — Text & Image / 8 Presets</title>
 <style>
 :root{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#171717;background:#f4f4f2}
 *{box-sizing:border-box}body{margin:0}
@@ -29,21 +29,26 @@ small{color:#777;line-height:1.5}.check{display:flex;align-items:center;gap:8px;
 footer{min-height:54px;padding:14px 24px;background:#111;color:#aaa;display:flex;align-items:center;justify-content:space-between;gap:18px;font-size:12px}
 footer strong{color:#fff;font-weight:700}footer a{color:#fff;text-decoration:none;border-bottom:1px solid #777;padding-bottom:1px}footer a:hover{border-color:#fff}
 @media(max-width:760px){main{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid #ddd}.preview{padding:12px}footer{align-items:flex-start;flex-direction:column;gap:6px}}
+
+.preview{align-items:flex-start}.hint{font-size:12px;color:#637180;line-height:1.6}.preset-panel{margin:18px -4px;padding:0 12px 12px;background:#f2f6fa;border:1px solid #d8e0e8;border-radius:10px}.preset-panel .buttons{margin-top:10px}input[hidden]{display:none}#effectControls[hidden]{display:none}
+#text{font-size:19px;border:2px solid #6b9dce}h2{font-size:17px;margin:22px 0 4px}.gallery-title{display:flex;justify-content:space-between;align-items:center;gap:10px}.gallery-title button{font-size:11px}
+#presetGallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.preset-card{padding:0;overflow:hidden;text-align:left;border:2px solid transparent;background:white;box-shadow:0 3px 12px #0001}.preset-card[aria-pressed=true]{border-color:#258eea}.preset-card span{display:block;padding:9px 12px;font-size:12px}.preset-card canvas{box-shadow:none}#out{background:repeating-conic-gradient(#eee 0% 25%,#fff 0% 50%) 0/20px 20px}button:focus-visible{outline:3px solid #168ccc;outline-offset:3px}
+@media(min-width:761px){aside{max-height:calc(100vh - 65px);position:sticky;top:0}.preview{padding:20px}}@media(max-width:760px){header span{display:none}}
 </style>
 </head>
 <body>
-<header><b>Typo2Logo</b><span>recursive-buffer logo maker</span></header>
+<header><b>Typo2Logo</b><span>Text + Image · 8 presets</span></header>
 <main>
 <aside>
-<label>SOURCE</label>
-<select id="sourceType"><option value="text">Text + Font</option><option value="image">Image</option></select>
+<label for="sourceType">入力方法</label>
+<select id="sourceType"><option value="text">テキスト ＋ フォント</option><option value="image">画像ファイル</option></select>
 <div id="textSource" class="source-panel">
-<label>TEXT</label><input id="text" type="text" value="RRIM">
+<label for="text">テキストを入力</label><input id="text" type="text" value="千葉達朗">
 <label>FONT</label>
 <select id="font">
 <option>Arial Black</option><option>Arial</option><option>Impact</option>
 <option>Georgia</option><option>Times New Roman</option><option>Trebuchet MS</option>
-<option>Verdana</option><option>Courier New</option><option>Yu Gothic</option><option>Yu Mincho</option>
+<option>Verdana</option><option>Courier New</option><option>Yu Gothic</option><option selected>Yu Mincho</option>
 </select>
 <label>OPTIONAL: LOAD LOCAL FONT</label><input id="fontFile" type="file" accept=".ttf,.otf,.woff,.woff2"><small>未選択なら上の標準フォントを使用します。</small>
 <div class="row">
@@ -53,29 +58,40 @@ footer strong{color:#fff;font-weight:700}footer a{color:#fff;text-decoration:non
 <label>LETTER SPACING <span id="lsV"></span></label><input id="letterSpacing" type="range" min="-60" max="160" value="0" step="1">
 </div>
 <div id="imageSource" class="source-panel" hidden>
-<label>IMAGE FILE</label><input id="imageFile" type="file" accept="image/*">
+<label for="imageFile">画像を選択</label><input id="imageFile" type="file" accept="image/*">
 <small class="image-note">透明PNGは透明度を、JPEGなどは明るさを自動的にマスクへ変換します。</small>
 <div class="row">
-<div><label>IMAGE SIZE <span id="imageScaleV"></span></label><input id="imageScale" type="range" min="20" max="130" value="100" step="1"></div>
-<div><label>THRESHOLD <span id="thresholdV"></span></label><input id="threshold" type="range" min="0" max="254" value="220" step="1"></div>
+<div><label>画像サイズ <span id="imageScaleV"></span></label><input id="imageScale" type="range" min="20" max="130" value="100" step="1"></div>
+<div><label>しきい値 <span id="thresholdV"></span></label><input id="threshold" type="range" min="0" max="254" value="220" step="1"></div>
 </div>
-<label class="check"><input id="imageInvert" type="checkbox"> Invert brightness mask</label>
+<label class="check"><input id="imageInvert" type="checkbox"> 明暗マスクを反転</label>
+</div>
+<div class="preset-panel">
+<label for="presetSelect">デザインプリセット</label><select id="presetSelect"><option value="manual">従来の配色（手動調整）</option></select>
+<p id="presetDescription" class="hint">輪郭の形を保ったまま、色と効果を切り替えます。</p>
+<label class="check"><input id="lockGeometry" type="checkbox" checked> 切替時に線幅・線間隔・範囲を保つ</label>
+<div id="effectControls">
+<div class="row"><div><label for="glow">発光強度 <span id="glowV"></span></label><input id="glow" type="range" min="0" max="2" step="0.01" value="0.85"></div><div><label for="blur">にじみ <span id="blurV"></span></label><input id="blur" type="range" min="0" max="30" step="1" value="8"></div></div>
+<label for="brightness">明るさ <span id="brightnessV"></span></label><input id="brightness" type="range" min="0.4" max="1.6" step="0.05" value="1">
+</div>
+<div class="buttons"><button id="savePreset" class="secondary">現在のJSON</button><button id="saveAllPresets" class="secondary">8種類のJSON</button><button id="loadPreset" class="secondary">JSON読込</button></div><input id="presetFile" type="file" accept=".json,application/json" hidden>
+<p id="presetMessage" role="status" class="hint"></p>
 </div>
 <div class="row">
 <div><label>MODE</label><select id="mode"><option value="lines">Waterline</option><option value="fill">Fill + Waterline</option><option value="distance">Distance field</option></select></div>
 <div><label>LINE REGION</label><select id="lineRegion"><option value="inside">Inside</option><option value="outside">Outside</option><option value="both" selected>Inside + Outside</option></select></div>
 </div>
 <div class="row">
-<div><label>BUFFER SCALE <span id="spV"></span></label><input id="spacing" type="range" min="3" max="45" value="14"></div>
-<div><label>LINE WIDTH <span id="lwV"></span></label><input id="lineWidth" type="range" min="1" max="12" value="3"></div>
+<div><label>BUFFER SCALE <span id="spV"></span></label><input id="spacing" type="range" min="3" max="45" step="0.1" value="14"></div>
+<div><label>LINE WIDTH <span id="lwV"></span></label><input id="lineWidth" type="range" min="0.5" max="12" step="0.1" value="3"></div>
 </div>
-<label>SHAPE FILL</label>
+<label>文字・画像の内部色</label>
 <div class="color"><input id="c1" type="color" value="#339cff"><input id="c1t" type="text" value="#339cff"></div>
 <div class="row">
-<div><label>INNER LINES</label><div class="color"><input id="c2" type="color" value="#95c2ec"><input id="c2t" type="text" value="#95c2ec"></div></div>
-<div><label>OUTER LINES</label><div class="color"><input id="c3" type="color" value="#f3883b"><input id="c3t" type="text" value="#f3883b"></div></div>
+<div><label>内側線色（手動配色）</label><div class="color"><input id="c2" type="color" value="#95c2ec"><input id="c2t" type="text" value="#95c2ec"></div></div>
+<div><label>外側線色（手動配色）</label><div class="color"><input id="c3" type="color" value="#f3883b"><input id="c3t" type="text" value="#f3883b"></div></div>
 </div>
-<label>SHAPE BOUNDARY</label>
+<label>境界線色（手動配色）</label>
 <div class="color"><input id="c4" type="color" value="#2c2927"><input id="c4t" type="text" value="#2c2927"></div>
 <label>BACKGROUND</label><div class="color"><input id="bg" type="color" value="#ffffff"><input id="bgt" type="text" value="#ffffff"></div>
 <label class="check"><input id="gradient" type="checkbox" checked> Smooth color gradient</label>
@@ -84,12 +100,280 @@ footer strong{color:#fff;font-weight:700}footer a{color:#fff;text-decoration:non
 <div class="buttons"><button class="primary" id="run">RUN</button><button class="secondary" id="png">SAVE PNG</button><button class="secondary" id="reset">RESET</button></div>
 <p><small>文字または画像の輪郭を「湖岸線」として、内側と外側へ再帰バッファー状の平行線を描きます。画像も高解像度で輪郭を一度だけ連続パス化し、文字と同じストローク差分で滑らかな線にします。線色は湖岸線からの距離に応じて滑らかに補間します。</small></p>
 </aside>
-<section class="preview"><div class="stage"><canvas id="out" width="1600" height="800"></canvas><div class="status"><span id="status">準備中</span><span>1600 × 800 px</span></div></div></section>
+<section class="preview"><div class="stage"><canvas id="out" width="1600" height="800"></canvas><div class="status"><span id="status">準備中</span><span>1600 × 800 px</span></div><div class="gallery-title"><h2>8種類のプリセット</h2><button id="updateGallery" class="secondary">現在の形で見本を更新</button></div><p class="hint">見本をクリックして適用。文字にも画像にも同じ効果を使えます。</p><div id="presetGallery"></div></div></section>
 </main>
 <footer>
   <div>© 2026 <strong>千葉達朗（千葉研究室） / Tatsuro Chiba</strong></div>
   <a href="https://www.facebook.com/arukazan" target="_blank" rel="noopener noreferrer" aria-label="千葉達朗のFacebookページを開く">Facebook: @arukazan ↗</a>
 </footer>
+<script id="typo2logo-presets" type="application/json">
+{
+  "schemaVersion": 2,
+  "application": "Typo2Logo",
+  "presets": [
+    {
+      "id": "neon",
+      "name": "ネオン",
+      "description": "暖色の芯と青い輪郭",
+      "geometry": {
+        "bufferScale": 1.2,
+        "lineWidth": 2,
+        "lineRegion": "both"
+      },
+      "colors": {
+        "background": "#03040b",
+        "corePalette": [
+          "#ff2400",
+          "#ff6500",
+          "#fff600",
+          "#ffffc5"
+        ],
+        "contourPalette": [
+          "#64ffff",
+          "#00a7ff",
+          "#1739ff",
+          "#4311a0"
+        ],
+        "shapeFill": "#280804"
+      },
+      "effects": {
+        "style": "neon",
+        "glowStrength": 0.85,
+        "glowBlur": 8,
+        "highlight": 0.6,
+        "textureStrength": 0,
+        "brightness": 1
+      }
+    },
+    {
+      "id": "aurora",
+      "name": "オーロラ",
+      "description": "青・緑・紫の柔らかな光",
+      "geometry": {
+        "bufferScale": 1.4,
+        "lineWidth": 2.2,
+        "lineRegion": "both"
+      },
+      "colors": {
+        "background": "#050d21",
+        "corePalette": [
+          "#5bfccc",
+          "#73f7ff",
+          "#cc91ff"
+        ],
+        "contourPalette": [
+          "#83ffd6",
+          "#25bfd2",
+          "#6762ee",
+          "#ec72d8"
+        ],
+        "shapeFill": "#071b27"
+      },
+      "effects": {
+        "style": "aurora",
+        "glowStrength": 0.65,
+        "glowBlur": 16,
+        "highlight": 0.22,
+        "textureStrength": 0,
+        "brightness": 1
+      }
+    },
+    {
+      "id": "gold",
+      "name": "ゴールド",
+      "description": "強い明暗差と細い反射帯",
+      "geometry": {
+        "bufferScale": 1.3,
+        "lineWidth": 2.4,
+        "lineRegion": "both"
+      },
+      "colors": {
+        "background": "#100c05",
+        "corePalette": [
+          "#79501a",
+          "#f8ca50",
+          "#fff4ae"
+        ],
+        "contourPalette": [
+          "#ffecad",
+          "#d79e30",
+          "#735019"
+        ],
+        "shapeFill": "#312006"
+      },
+      "effects": {
+        "style": "gold",
+        "glowStrength": 0.1,
+        "glowBlur": 3,
+        "highlight": 0.2,
+        "textureStrength": 0,
+        "brightness": 1
+      }
+    },
+    {
+      "id": "silver",
+      "name": "シルバー",
+      "description": "青みを帯びた鏡面の輝き",
+      "geometry": {
+        "bufferScale": 1.3,
+        "lineWidth": 2,
+        "lineRegion": "both"
+      },
+      "colors": {
+        "background": "#080e18",
+        "corePalette": [
+          "#4f6179",
+          "#dce9f4",
+          "#ffffff"
+        ],
+        "contourPalette": [
+          "#f5fcff",
+          "#8ea5bb",
+          "#394a63"
+        ],
+        "shapeFill": "#1e2836"
+      },
+      "effects": {
+        "style": "silver",
+        "glowStrength": 0.08,
+        "glowBlur": 2,
+        "highlight": 0.28,
+        "textureStrength": 0,
+        "brightness": 1
+      }
+    },
+    {
+      "id": "fluoro",
+      "name": "蛍光印刷",
+      "description": "鮮やかな色とくっきりした線",
+      "geometry": {
+        "bufferScale": 1.2,
+        "lineWidth": 2.4,
+        "lineRegion": "both"
+      },
+      "colors": {
+        "background": "#fffdf1",
+        "corePalette": [
+          "#ff008d",
+          "#ff671f",
+          "#e3fc00"
+        ],
+        "contourPalette": [
+          "#00b9d4",
+          "#cce900",
+          "#ff00a8",
+          "#4b24ff"
+        ],
+        "shapeFill": "#fff1bc"
+      },
+      "effects": {
+        "style": "print",
+        "glowStrength": 0,
+        "glowBlur": 0,
+        "highlight": 0,
+        "textureStrength": 0,
+        "brightness": 1
+      }
+    },
+    {
+      "id": "pop",
+      "name": "ポップ発光",
+      "description": "白地にピンクとシアン",
+      "geometry": {
+        "bufferScale": 1.4,
+        "lineWidth": 2.6,
+        "lineRegion": "both"
+      },
+      "colors": {
+        "background": "#ffffff",
+        "corePalette": [
+          "#fe277c",
+          "#ff9cda",
+          "#fff3a5"
+        ],
+        "contourPalette": [
+          "#09a4c7",
+          "#803dff",
+          "#ff5ab6"
+        ],
+        "shapeFill": "#ffe7ee"
+      },
+      "effects": {
+        "style": "pop",
+        "glowStrength": 0.35,
+        "glowBlur": 9,
+        "highlight": 0.3,
+        "textureStrength": 0,
+        "brightness": 1
+      }
+    },
+    {
+      "id": "cool-warm",
+      "name": "クール＆ウォーム",
+      "description": "にじみを抑えた補色の対比",
+      "geometry": {
+        "bufferScale": 1,
+        "lineWidth": 1.8,
+        "lineRegion": "both"
+      },
+      "colors": {
+        "background": "#020713",
+        "corePalette": [
+          "#ff2b09",
+          "#ff8b00",
+          "#ffff3a"
+        ],
+        "contourPalette": [
+          "#23ebff",
+          "#0085ff",
+          "#281ecb"
+        ],
+        "shapeFill": "#240906"
+      },
+      "effects": {
+        "style": "neon",
+        "glowStrength": 0.22,
+        "glowBlur": 3,
+        "highlight": 0.35,
+        "textureStrength": 0,
+        "brightness": 1
+      }
+    },
+    {
+      "id": "watercolor",
+      "name": "水彩",
+      "description": "淡い色の重なりと紙の粒子",
+      "geometry": {
+        "bufferScale": 1.6,
+        "lineWidth": 2.8,
+        "lineRegion": "both"
+      },
+      "colors": {
+        "background": "#fbf6e9",
+        "corePalette": [
+          "#d55c83",
+          "#eda45c",
+          "#e2c96d"
+        ],
+        "contourPalette": [
+          "#56aaa9",
+          "#7585c1",
+          "#bf87ad"
+        ],
+        "shapeFill": "#eee1ca"
+      },
+      "effects": {
+        "style": "watercolor",
+        "glowStrength": 0,
+        "glowBlur": 5,
+        "highlight": 0,
+        "textureStrength": 0.18,
+        "brightness": 1
+      }
+    }
+  ]
+}
+</script>
 <script>
 const $=id=>document.getElementById(id),out=$("out"),ctx=out.getContext("2d",{alpha:true,willReadFrequently:true});
 const W=out.width,H=out.height;
@@ -120,7 +404,7 @@ function edt1d(f,n){
   v[0]=0;z[0]=-Infinity;z[1]=Infinity;
   for(let q=1;q<n;q++){
     let s;
-    do{const p=v[k];s=((f[q]+q*q)-(f[p]+p*p))/(2*q-2*p);if(s<=z[k])k--}while(s<=z[k]);
+    while(true){const p=v[k];s=((f[q]+q*q)-(f[p]+p*p))/(2*q-2*p);if(s>z[k])break;k--;}
     k++;v[k]=q;z[k]=s;z[k+1]=Infinity;
   }
   k=0;for(let q=0;q<n;q++){while(z[k+1]<q)k++;const dx=q-v[k];d[q]=dx*dx+f[v[k]]}
@@ -140,7 +424,7 @@ function distanceTransform(binary,width=W,height=H){
 }
 
 function setTextStyle(target){
-  target.font=`${layout.weight} ${layout.size}px "${layout.family}"`;
+  target.font=`${layout.weight} ${layout.size}px "${layout.family}", "Noto Serif CJK JP", serif`;
   target.textAlign="left";target.textBaseline="alphabetic";
 }
 function measureTrackedText(target,text,spacing){
@@ -249,13 +533,13 @@ function makeTextMask(){
   const text=$("text").value||"RRIM",family=localFont||$("font").value,weight=$("weight").value,spacing=+$("letterSpacing").value;
   let size=+$("fs").value;
   for(let pass=0;pass<3;pass++){
-    mctx.font=`${weight} ${size}px "${family}"`;
+    mctx.font=`${weight} ${size}px "${family}", "Noto Serif CJK JP", serif`;
     const metrics=mctx.measureText(text),tracked=measureTrackedText(mctx,text,spacing);
     const measuredHeight=(metrics.actualBoundingBoxAscent||size*.75)+(metrics.actualBoundingBoxDescent||size*.25);
     const factor=Math.min(1,W*.88/tracked.totalWidth,H*.72/Math.max(1,measuredHeight));
     if(factor>=.999)break;size*=factor;
   }
-  mctx.font=`${weight} ${size}px "${family}"`;const metrics=mctx.measureText(text);
+  mctx.font=`${weight} ${size}px "${family}", "Noto Serif CJK JP", serif`;const metrics=mctx.measureText(text);
   const ascent=metrics.actualBoundingBoxAscent||size*.75,descent=metrics.actualBoundingBoxDescent||size*.25;
   layout={kind:"text",text,family,weight,size,spacing,y:(H+ascent-descent)/2};
   setTextStyle(mctx);layout.glyphs=positionGlyphs(mctx,text,spacing,W/2);fillGlyphs(mctx);
@@ -332,6 +616,7 @@ function fillSource(target){
 }
 
 function lineColor(side,index,count){
+  if(presetForDrawing)return presetLineColor(presetForDrawing,side,index,count);
   const glyph=hex($("c1").value)||[51,156,255];
   const inner=hex($("c2").value)||[149,194,236];
   const outer=hex($("c3").value)||[243,136,59];
@@ -349,7 +634,7 @@ function lineColor(side,index,count){
 
 function buildTextLineLayer(offsets,side){
   lctx.globalCompositeOperation="source-over";lctx.clearRect(0,0,W,H);
-  const width=+$("lineWidth").value;
+  const width=presetStrokeWidth??+$("lineWidth").value;
   for(let i=offsets.length-1;i>=0;i--){
     const distance=offsets[i],color=cssColor(lineColor(side,i,offsets.length));
     strokeGlyphs(lctx,2*distance+width,color,"source-over");
@@ -366,7 +651,7 @@ function strokeImageOutline(target,width,color,operation){
 function buildImageLineLayer(offsets,side){
   ilctx.globalCompositeOperation="source-over";ilctx.clearRect(0,0,IW,IH);
   if(!offsets.length)return;
-  const width=+$("lineWidth").value;
+  const width=presetStrokeWidth??+$("lineWidth").value;
   for(let i=offsets.length-1;i>=0;i--){
     const distance=offsets[i],color=cssColor(lineColor(side,i,offsets.length));
     strokeImageOutline(ilctx,2*distance+width,color,"source-over");
@@ -419,6 +704,7 @@ function drawDistanceFill(target){
 
 function paint(){
   if(!distanceField||!layout||layout.kind!==(sourceIsImage()?"image":"text"))return;
+  if(activePreset){paintPreset();return;}
   const started=performance.now(),innerOffsets=recursiveOffsets(maxDistance),outerOffsets=recursiveOffsets(layout.outerLimit),mode=$("mode").value;
   const imageMode=sourceIsImage(),target=imageMode?ioctx:ctx,width=imageMode?IW:W,height=imageMode?IH:H;
   target.globalCompositeOperation="source-over";target.clearRect(0,0,width,height);
@@ -442,6 +728,7 @@ function paint(){
 }
 
 async function render(){
+  ++galleryGeneration;clearTimeout(galleryTimer);
   const token=++generation,button=$("run");button.disabled=true;
   if(sourceIsImage()&&!sourceImage){
     ctx.clearRect(0,0,W,H);if(!$("transparent").checked){ctx.fillStyle=$("bg").value;ctx.fillRect(0,0,W,H)}
@@ -461,7 +748,7 @@ async function render(){
   if(token!==generation)return;
   let maximum=1;for(let i=0;i<field.length;i++)if(field[i]>maximum)maximum=field[i];
   binaryMask=made.binary;maskAlpha=made.alpha;distanceField=field;maxDistance=maximum/processScale;
-  paint();button.disabled=false;$("status").textContent+=`・解析 ${(performance.now()-started).toFixed(0)} ms`;
+  paint();scheduleGallery();button.disabled=false;$("status").textContent+=`・解析 ${(performance.now()-started).toFixed(0)} ms`;
 }
 
 function bindColor(picker,text){
@@ -513,11 +800,179 @@ $("run").addEventListener("click",render);
 $("png").addEventListener("click",()=>{
   const sourceName=sourceIsImage()?imageFileName:($("text").value||"logo");
   const safe=sourceName.replace(/[\\/:*?"<>|]+/g,"_");
-  const link=document.createElement("a");link.download=safe+"_Typo2Logo.png";link.href=out.toDataURL("image/png");link.click();
+  const link=document.createElement("a");link.download=safe+"_Typo2Logo_"+(activePreset?activePreset.id:"manual")+"_"+new Date().toISOString().replace(/[:.]/g,"-")+".png";link.href=out.toDataURL("image/png");link.click();
 });
 $("reset").addEventListener("click",()=>location.reload());
 
-toggleSourceControls();updateLabels();render();
+// Appearance presets are data; text/image geometry continues to use the original
+// continuous outline + recursive stroke-difference implementation above.
+const presetDocument=JSON.parse($('typo2logo-presets').textContent);
+const builtInPresets=presetDocument.presets,presetChoices=[...builtInPresets];
+let activePreset=null,presetForDrawing=null,presetStrokeWidth=null,galleryGeneration=0,galleryTimer=null,presetFrame=0;
+const presetInk=document.createElement('canvas'),presetInkCtx=presetInk.getContext('2d');
+function paletteRGB(colors,t){
+  t=Math.max(0,Math.min(1,t))*(colors.length-1);const i=Math.min(colors.length-2,Math.floor(t));
+  return mix(hex(colors[i]),hex(colors[i+1]),t-i);
+}
+function presetLineColor(p,side,index,count){
+  let t=count>1?index/(count-1):0;if($('reverse').checked)t=1-t;
+  const colors=side==='inside'?p.colors.corePalette:p.colors.contourPalette;
+  return p.effects.style==='print'?hex(colors[index%colors.length]):paletteRGB(colors,t);
+}
+function currentPreset(){
+  if(!activePreset)return null;
+  const p=structuredClone(activePreset);
+  p.geometry={bufferScale:+$('spacing').value/7,lineWidth:+$('lineWidth').value,lineRegion:$('lineRegion').value};
+  p.colors.background=$('bg').value;p.colors.shapeFill=$('c1').value;
+  p.output={mode:$('mode').value,reverse:$('reverse').checked,transparent:$('transparent').checked};
+  Object.assign(p.effects,{glowStrength:+$('glow').value,glowBlur:+$('blur').value,brightness:+$('brightness').value});return p;
+}
+function styleLayer(layer,layerContext,p,width,height){
+  const style=p.effects.style;
+  if(!['gold','silver','aurora'].includes(style))return;
+  let gradient;
+  if(style==='aurora'){
+    gradient=layerContext.createLinearGradient(width*.13,height*.3,width*.87,height*.7);
+    ['#6fffc5','#65e5fc','#ad8aff','#ee76c9'].forEach((c,i)=>gradient.addColorStop(i/3,c));
+  }else{
+    gradient=layerContext.createLinearGradient(0,height*.2,0,height*.8);
+    const colors=style==='gold'?['#392302','#aa7220','#fff4bb','#fffdeb','#b78825','#332004','#e8b84d','#fff7ce','#815314']:['#162234','#688095','#effaff','#ffffff','#687b90','#151d2a','#bccfdf','#ffffff','#55667a'];
+    [0,.20,.32,.36,.42,.48,.63,.67,1].forEach((stop,i)=>gradient.addColorStop(stop,colors[i]));
+  }
+  layerContext.save();layerContext.globalCompositeOperation='source-in';layerContext.fillStyle=gradient;layerContext.fillRect(0,0,width,height);layerContext.restore();
+}
+function drawPreset(target,p,transparent=false){
+  const imageMode=sourceIsImage(),width=imageMode?IW:W,height=imageMode?IH:H,scale=imageMode?IMAGE_SS:1;
+  if(presetInk.width!==width||presetInk.height!==height){presetInk.width=width;presetInk.height=height;}
+  const ink=presetInkCtx,fx=p.effects,region=$('lineRegion').value,mode=$('mode').value;
+  const inner=recursiveOffsets(maxDistance),outer=recursiveOffsets(layout.outerLimit);
+  ink.clearRect(0,0,width,height);ink.globalCompositeOperation='source-over';
+  if(mode==='distance'){
+    drawDistanceFill(ink);ink.globalCompositeOperation='destination-in';ink.drawImage(imageMode?imageMask:mask,0,0);ink.globalCompositeOperation='source-over';
+  }else{
+    ink.fillStyle=p.colors.shapeFill;fillSource(ink);
+    presetForDrawing=p;
+    try{
+      for(const side of ['outside','inside']){
+        if(region==='inside'&&side==='outside'||region==='outside'&&side==='inside')continue;
+        buildLineLayer(side==='inside'?inner:outer,side);
+        const layer=imageMode?imageLines:lines,lc=imageMode?ilctx:lctx;
+        styleLayer(layer,lc,p,width,height);ink.drawImage(layer,0,0);
+      }
+      // A narrow light core stays on exactly the same continuous strokes.
+      if(fx.highlight>0&&region!=='outside'){
+        presetStrokeWidth=Math.max(.4,+$('lineWidth').value*.26);
+        buildLineLayer(inner,'inside');const layer=imageMode?imageLines:lines,lc=imageMode?ilctx:lctx;
+        lc.save();lc.globalCompositeOperation='source-in';lc.fillStyle='#fffbdc';lc.fillRect(0,0,width,height);lc.restore();
+        ink.globalAlpha=fx.highlight;ink.drawImage(layer,0,0);ink.globalAlpha=1;
+      }
+    }finally{presetForDrawing=null;presetStrokeWidth=null;}
+  }
+  target.save();target.setTransform(1,0,0,1,0,0);target.clearRect(0,0,width,height);
+  if(!transparent){target.fillStyle=p.colors.background;target.fillRect(0,0,width,height);}
+  if(fx.style==='watercolor'){
+    target.globalAlpha=.28;target.filter=`blur(${fx.glowBlur*scale}px) brightness(${fx.brightness})`;target.drawImage(presetInk,0,0);target.globalAlpha=.8;
+  }else if(fx.glowStrength>0){
+    target.globalAlpha=Math.min(1,fx.glowStrength*.6);target.filter=`blur(${Math.max(.1,fx.glowBlur)*scale}px) brightness(${fx.brightness})`;target.drawImage(presetInk,0,0);
+    target.globalAlpha=Math.min(1,fx.glowStrength*.8);target.filter=`blur(${Math.max(.1,fx.glowBlur*.32)*scale}px) brightness(${fx.brightness})`;target.drawImage(presetInk,0,0);target.globalAlpha=1;
+  }
+  target.filter=`brightness(${fx.brightness})`;target.drawImage(presetInk,0,0);target.filter='none';target.globalAlpha=1;
+  if(fx.textureStrength>0){
+    target.globalCompositeOperation=transparent?'source-atop':'multiply';target.globalAlpha=fx.textureStrength;target.fillStyle='#807361';
+    let seed=971;for(let i=0;i<18000;i++){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const x=seed%width;seed=(Math.imul(seed,1664525)+1013904223)>>>0;target.fillRect(x,seed%height,scale,scale);}
+  }
+  target.restore();
+  return {inner:inner.length,outer:outer.length};
+}
+function paintPreset(){
+  const started=performance.now(),p=currentPreset(),imageMode=sourceIsImage(),target=imageMode?ioctx:ctx;
+  const counts=drawPreset(target,p,$('transparent').checked);
+  if(imageMode){ctx.clearRect(0,0,W,H);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(imageOutput,0,0,IW,IH,0,0,W,H);}
+  const source=imageMode?`画像 ${layout.maskMode}・しきい値 ${$('threshold').value}`:'文字';
+  $('status').textContent=`${source}・${p.name}・連続輪郭 内${counts.inner}/外${counts.outer}段・${(performance.now()-started).toFixed(0)} ms`;
+}
+function presetLabels(){
+  for(const [a,b,s] of [['glow','glowV',''],['blur','blurV',' px'],['brightness','brightnessV','×']])$(b).textContent=$(a).value+s;
+  $('effectControls').hidden=!activePreset;$('savePreset').disabled=!activePreset;
+  document.querySelectorAll('.preset-card').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.id===activePreset?.id)));
+}
+function applyPreset(p,forceGeometry=false){
+  activePreset=p?structuredClone(p):null;
+  if(p){
+    for(const [id,value] of [['bg',p.colors.background],['c1',p.colors.shapeFill],['c2',p.colors.corePalette[0]],['c3',p.colors.contourPalette[0]]]){$(id).value=value;$(id+'t').value=value;}
+    $('glow').value=p.effects.glowStrength;$('blur').value=p.effects.glowBlur;$('brightness').value=p.effects.brightness;
+    if(forceGeometry||!$('lockGeometry').checked){$('spacing').value=p.geometry.bufferScale*7;$('lineWidth').value=p.geometry.lineWidth;$('lineRegion').value=p.geometry.lineRegion;}
+    if(forceGeometry&&p.output){$('mode').value=p.output.mode;$('reverse').checked=p.output.reverse;$('transparent').checked=p.output.transparent;}
+    $('presetSelect').value=p.id;$('presetDescription').textContent=p.description;
+  }else{
+    $('presetSelect').value='manual';$('presetDescription').textContent='従来の4色とグラデーションで調整できます。';
+  }
+  updateLabels();presetLabels();paint();scheduleGallery();
+}
+function schedulePresetPaint(){cancelAnimationFrame(presetFrame);presetFrame=requestAnimationFrame(()=>{presetLabels();paint();});}
+function scheduleGallery(){
+  clearTimeout(galleryTimer);const token=++galleryGeneration;
+  $('presetGallery').setAttribute('aria-busy','true');$('updateGallery').textContent='見本を更新中…';
+  galleryTimer=setTimeout(()=>refreshGallery(token),300);
+}
+async function refreshGallery(token=++galleryGeneration){
+  if(!layout||!distanceField||layout.kind!==(sourceIsImage()?'image':'text')){$('presetGallery').setAttribute('aria-busy','false');$('updateGallery').textContent='現在の形で見本を更新';return;}
+  const imageMode=sourceIsImage(),sample=document.createElement('canvas');sample.width=imageMode?IW:W;sample.height=imageMode?IH:H;const sampleCtx=sample.getContext('2d');
+  for(const p of builtInPresets){
+    if(token!==galleryGeneration||!layout||layout.kind!==(imageMode?'image':'text'))return;
+    drawPreset(sampleCtx,p,false);
+    const thumb=document.querySelector(`[data-id="${p.id}"] canvas`),tc=thumb.getContext('2d');tc.clearRect(0,0,thumb.width,thumb.height);tc.drawImage(sample,0,0,thumb.width,thumb.height);
+    await new Promise(resolve=>setTimeout(resolve,0));
+  }
+  $('updateGallery').textContent='現在の形で見本を更新';
+  $('presetGallery').setAttribute('aria-busy','false');$('presetGallery').dataset.source=imageMode?'image':'text';
+}
+function saveJSON(data,name){
+  const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function validatePreset(p){
+  const fail=()=>{throw Error('プリセットの形式が不正です。Typo2Logoで保存したJSONを選んでください。');};
+  if(!p||typeof p.id!=='string'||!p.id||p.id.length>120||typeof p.name!=='string'||typeof p.description!=='string')fail();
+  const g=p.geometry,c=p.colors,e=p.effects,n=(v,a,b)=>typeof v==='number'&&Number.isFinite(v)&&v>=a&&v<=b;
+  if(!g||!c||!e||!n(g.bufferScale,3/7,45/7)||!n(g.lineWidth,.5,12)||!['inside','outside','both'].includes(g.lineRegion))fail();
+  for(const color of [c.background,c.shapeFill])if(typeof color!=='string'||!/^#[0-9a-f]{6}$/i.test(color))fail();
+  for(const colors of [c.corePalette,c.contourPalette])if(!Array.isArray(colors)||colors.length<2||colors.length>16||colors.some(v=>typeof v!=='string'||!/^#[0-9a-f]{6}$/i.test(v)))fail();
+  if(!['neon','aurora','gold','silver','print','pop','watercolor'].includes(e.style)||!n(e.glowStrength,0,2)||!n(e.glowBlur,0,30)||!n(e.brightness,.4,1.6)||!n(e.highlight,0,1)||!n(e.textureStrength,0,1))fail();
+  if(p.output&&(!['lines','fill','distance'].includes(p.output.mode)||typeof p.output.reverse!=='boolean'||typeof p.output.transparent!=='boolean'))fail();
+  return structuredClone(p);
+}
+function initPresets(){
+  for(const p of builtInPresets){
+    validatePreset(p);$('presetSelect').add(new Option(p.name,p.id));
+    const b=document.createElement('button');b.className='preset-card';b.dataset.id=p.id;b.setAttribute('aria-label',p.name+'を適用');
+    const c=document.createElement('canvas');c.width=480;c.height=240;const s=document.createElement('span');s.textContent=p.name+' — '+p.description;b.append(c,s);b.addEventListener('click',()=>applyPreset(p));$('presetGallery').append(b);
+  }
+  $('presetSelect').addEventListener('change',()=>applyPreset(presetChoices.find(p=>p.id===$('presetSelect').value)||null));
+  for(const id of ['glow','blur','brightness'])$(id).addEventListener('input',schedulePresetPaint);
+  for(const id of ['lineWidth','spacing'])$(id).addEventListener('input',scheduleGallery);
+  for(const id of ['lineRegion','mode','reverse'])$(id).addEventListener('change',scheduleGallery);
+  $('sourceType').addEventListener('change',()=>{++galleryGeneration;});
+  $('updateGallery').addEventListener('click',()=>{ $('updateGallery').textContent='見本を更新中…';scheduleGallery(); });
+  $('savePreset').addEventListener('click',()=>{if(activePreset)saveJSON({schemaVersion:2,application:'Typo2Logo',presets:[currentPreset()]},'Typo2Logo_'+activePreset.id+'.json');});
+  $('saveAllPresets').addEventListener('click',()=>saveJSON(presetDocument,'Typo2Logo_8_presets.json'));
+  $('loadPreset').addEventListener('click',()=>$('presetFile').click());
+  $('presetFile').addEventListener('change',async event=>{
+    const f=event.target.files[0];if(!f)return;
+    try{
+      if(f.size>200000)throw Error('JSONは200 KB以下にしてください。');
+      const data=JSON.parse(await f.text());if(data.schemaVersion!==2||data.application!=='Typo2Logo'||!Array.isArray(data.presets)||data.presets.length<1||data.presets.length>32)throw Error('この版の「8種類のJSON」または「現在のJSON」を読み込んでください。');
+      const loaded=data.presets.map(validatePreset);
+      loaded.forEach((p,i)=>{p.id='import-'+Date.now()+'-'+i;presetChoices.push(p);$('presetSelect').add(new Option(p.name+'（読込）',p.id));});
+      applyPreset(loaded[0],true);$('presetMessage').textContent=`${loaded.length}種類を読み込みました。`;
+    }catch(e){$('presetMessage').textContent=e.message;}
+    event.target.value='';
+  });
+  // Text entry remains first and updates without hunting for RUN.
+  let textTimer=null;$('text').addEventListener('input',()=>{clearTimeout(textTimer);textTimer=setTimeout(()=>{if(!sourceIsImage())render();},300);});
+  applyPreset(builtInPresets[0],true);
+}
+
+initPresets();toggleSourceControls();updateLabels();render();
 </script>
 </body>
 </html>
