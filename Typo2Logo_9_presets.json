@@ -1,0 +1,304 @@
+{
+  "schemaVersion": 2,
+  "application": "Typo2Logo",
+  "presets": [
+    {
+      "id": "neon",
+      "name": "ネオン",
+      "description": "暖色の芯と青い輪郭",
+      "geometry": {
+        "bufferScale": 1.2,
+        "lineWidth": 2,
+        "lineRegion": "both"
+      },
+      "colors": {
+        "background": "#03040b",
+        "corePalette": [
+          "#ff2400",
+          "#ff6500",
+          "#fff600",
+          "#ffffc5"
+        ],
+        "contourPalette": [
+          "#64ffff",
+          "#00a7ff",
+          "#1739ff",
+          "#4311a0"
+        ],
+        "shapeFill": "#280804"
+      },
+      "effects": {
+        "style": "neon",
+        "glowStrength": 0.85,
+        "glowBlur": 8,
+        "highlight": 0.6,
+        "textureStrength": 0,
+        "brightness": 1
+      }
+    },
+    {
+      "id": "aurora",
+      "name": "オーロラ",
+      "description": "青・緑・紫の柔らかな光",
+      "geometry": {
+        "bufferScale": 1.4,
+        "lineWidth": 2.2,
+        "lineRegion": "both"
+      },
+      "colors": {
+        "background": "#050d21",
+        "corePalette": [
+          "#5bfccc",
+          "#73f7ff",
+          "#cc91ff"
+        ],
+        "contourPalette": [
+          "#83ffd6",
+          "#25bfd2",
+          "#6762ee",
+          "#ec72d8"
+        ],
+        "shapeFill": "#071b27"
+      },
+      "effects": {
+        "style": "aurora",
+        "glowStrength": 0.65,
+        "glowBlur": 16,
+        "highlight": 0.22,
+        "textureStrength": 0,
+        "brightness": 1
+      }
+    },
+    {
+      "id": "gold",
+      "name": "ゴールド",
+      "description": "強い明暗差と細い反射帯",
+      "geometry": {
+        "bufferScale": 1.3,
+        "lineWidth": 2.4,
+        "lineRegion": "both"
+      },
+      "colors": {
+        "background": "#100c05",
+        "corePalette": [
+          "#79501a",
+          "#f8ca50",
+          "#fff4ae"
+        ],
+        "contourPalette": [
+          "#ffecad",
+          "#d79e30",
+          "#735019"
+        ],
+        "shapeFill": "#312006"
+      },
+      "effects": {
+        "style": "gold",
+        "glowStrength": 0.1,
+        "glowBlur": 3,
+        "highlight": 0.2,
+        "textureStrength": 0,
+        "brightness": 1
+      }
+    },
+    {
+      "id": "silver",
+      "name": "シルバー",
+      "description": "青みを帯びた鏡面の輝き",
+      "geometry": {
+        "bufferScale": 1.3,
+        "lineWidth": 2,
+        "lineRegion": "both"
+      },
+      "colors": {
+        "background": "#080e18",
+        "corePalette": [
+          "#4f6179",
+          "#dce9f4",
+          "#ffffff"
+        ],
+        "contourPalette": [
+          "#f5fcff",
+          "#8ea5bb",
+          "#394a63"
+        ],
+        "shapeFill": "#1e2836"
+      },
+      "effects": {
+        "style": "silver",
+        "glowStrength": 0.08,
+        "glowBlur": 2,
+        "highlight": 0.28,
+        "textureStrength": 0,
+        "brightness": 1
+      }
+    },
+    {
+      "id": "fluoro",
+      "name": "蛍光印刷",
+      "description": "鮮やかな色とくっきりした線",
+      "geometry": {
+        "bufferScale": 1.2,
+        "lineWidth": 2.4,
+        "lineRegion": "both"
+      },
+      "colors": {
+        "background": "#fffdf1",
+        "corePalette": [
+          "#ff008d",
+          "#ff671f",
+          "#e3fc00"
+        ],
+        "contourPalette": [
+          "#00b9d4",
+          "#cce900",
+          "#ff00a8",
+          "#4b24ff"
+        ],
+        "shapeFill": "#fff1bc"
+      },
+      "effects": {
+        "style": "print",
+        "glowStrength": 0,
+        "glowBlur": 0,
+        "highlight": 0,
+        "textureStrength": 0,
+        "brightness": 1
+      }
+    },
+    {
+      "id": "pop",
+      "name": "ポップ発光",
+      "description": "白地にピンクとシアン",
+      "geometry": {
+        "bufferScale": 1.4,
+        "lineWidth": 2.6,
+        "lineRegion": "both"
+      },
+      "colors": {
+        "background": "#ffffff",
+        "corePalette": [
+          "#fe277c",
+          "#ff9cda",
+          "#fff3a5"
+        ],
+        "contourPalette": [
+          "#09a4c7",
+          "#803dff",
+          "#ff5ab6"
+        ],
+        "shapeFill": "#ffe7ee"
+      },
+      "effects": {
+        "style": "pop",
+        "glowStrength": 0.35,
+        "glowBlur": 9,
+        "highlight": 0.3,
+        "textureStrength": 0,
+        "brightness": 1
+      }
+    },
+    {
+      "id": "cool-warm",
+      "name": "クール＆ウォーム",
+      "description": "にじみを抑えた補色の対比",
+      "geometry": {
+        "bufferScale": 1,
+        "lineWidth": 1.8,
+        "lineRegion": "both"
+      },
+      "colors": {
+        "background": "#020713",
+        "corePalette": [
+          "#ff2b09",
+          "#ff8b00",
+          "#ffff3a"
+        ],
+        "contourPalette": [
+          "#23ebff",
+          "#0085ff",
+          "#281ecb"
+        ],
+        "shapeFill": "#240906"
+      },
+      "effects": {
+        "style": "neon",
+        "glowStrength": 0.22,
+        "glowBlur": 3,
+        "highlight": 0.35,
+        "textureStrength": 0,
+        "brightness": 1
+      }
+    },
+    {
+      "id": "watercolor",
+      "name": "水彩",
+      "description": "淡い色の重なりと紙の粒子",
+      "geometry": {
+        "bufferScale": 1.6,
+        "lineWidth": 2.8,
+        "lineRegion": "both"
+      },
+      "colors": {
+        "background": "#fbf6e9",
+        "corePalette": [
+          "#d55c83",
+          "#eda45c",
+          "#e2c96d"
+        ],
+        "contourPalette": [
+          "#56aaa9",
+          "#7585c1",
+          "#bf87ad"
+        ],
+        "shapeFill": "#eee1ca"
+      },
+      "effects": {
+        "style": "watercolor",
+        "glowStrength": 0,
+        "glowBlur": 5,
+        "highlight": 0,
+        "textureStrength": 0.18,
+        "brightness": 1
+      }
+    },
+    {
+      "id": "copper-mincho",
+      "name": "銅色・明朝輪郭",
+      "description": "採用案③をもとに、アイボリー地・深い銅色の芯・細い多重輪郭を再現。文字そのものの形は選択フォントに依存します。",
+      "geometry": {
+        "bufferScale": 1,
+        "lineWidth": 2,
+        "lineRegion": "both"
+      },
+      "colors": {
+        "background": "#fffaf0",
+        "corePalette": [
+          "#f0480a",
+          "#ffeac2",
+          "#bd3809",
+          "#ff962a"
+        ],
+        "contourPalette": [
+          "#da3307",
+          "#f5a451",
+          "#9b2608"
+        ],
+        "shapeFill": "#59200d"
+      },
+      "effects": {
+        "style": "copper",
+        "glowStrength": 0,
+        "glowBlur": 1,
+        "highlight": 0.3,
+        "textureStrength": 0,
+        "brightness": 1
+      },
+      "output": {
+        "mode": "fill",
+        "reverse": false,
+        "transparent": false
+      }
+    }
+  ]
+}
