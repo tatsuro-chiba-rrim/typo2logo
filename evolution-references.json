@@ -1,0 +1,806 @@
+{
+  "reviewedOn": "2026-09-30",
+  "selection": "制作者の公開事例から、ワードマーク・ロゴタイプ・モノグラムに言及した100例を、文字形状の研究用に選定。世界順位ではありません。",
+  "references": [
+    {
+      "id": 1,
+      "name": "St Paul’s Cathedral",
+      "url": "https://www.pentagram.com/work/st-paul-s-cathedral",
+      "family": "serif",
+      "focus": "セリフと太細の対比",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 2,
+      "name": "Omaha Performing Arts",
+      "url": "https://www.pentagram.com/work/omaha-performing-arts",
+      "family": "rounded",
+      "focus": "丸みと柔らかい接続",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 3,
+      "name": "Sharjah City Brand",
+      "url": "https://www.pentagram.com/work/sharjah-city-brand",
+      "family": "rounded",
+      "focus": "丸みと柔らかい接続",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 4,
+      "name": "MUSE",
+      "url": "https://www.pentagram.com/work/muse",
+      "family": "bold",
+      "focus": "太さと力強さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 5,
+      "name": "OPPO",
+      "url": "https://www.pentagram.com/work/oppo",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 6,
+      "name": "San Antonio Book Festival",
+      "url": "https://www.pentagram.com/work/san-antonio-book-festival",
+      "family": "geometric",
+      "focus": "幾何形状と反復",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 7,
+      "name": "MoMA",
+      "url": "https://www.pentagram.com/work/moma",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 8,
+      "name": "PayPal",
+      "url": "https://www.pentagram.com/work/paypal",
+      "family": "rounded",
+      "focus": "丸みと柔らかい接続",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 9,
+      "name": "The John Lewis Partnership",
+      "url": "https://www.pentagram.com/work/the-john-lewis-partnership",
+      "family": "bold",
+      "focus": "太さと力強さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 10,
+      "name": "Intrinsic",
+      "url": "https://www.pentagram.com/work/intrinsic",
+      "family": "bold",
+      "focus": "太さと力強さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 11,
+      "name": "Frist Art Museum",
+      "url": "https://www.pentagram.com/work/frist-art-museum",
+      "family": "serif",
+      "focus": "セリフと太細の対比",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 12,
+      "name": "SimpliSafe",
+      "url": "https://www.pentagram.com/work/simplisafe",
+      "family": "rounded",
+      "focus": "丸みと柔らかい接続",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 13,
+      "name": "LBTY: Liberty Beauty",
+      "url": "https://www.pentagram.com/work/lbty-liberty-beauty",
+      "family": "sans",
+      "focus": "字幅・字間と明瞭さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 14,
+      "name": "University of Southern California",
+      "url": "https://www.pentagram.com/work/university-of-southern-california-1",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 15,
+      "name": "American Girl",
+      "url": "https://www.pentagram.com/work/american-girl",
+      "family": "serif",
+      "focus": "セリフと太細の対比",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 16,
+      "name": "Calendly",
+      "url": "https://www.pentagram.com/work/calendly-2",
+      "family": "rounded",
+      "focus": "丸みと柔らかい接続",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 17,
+      "name": "DECC",
+      "url": "https://www.pentagram.com/work/decc",
+      "family": "rounded",
+      "focus": "丸みと柔らかい接続",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 18,
+      "name": "Dataland",
+      "url": "https://www.pentagram.com/work/dataland",
+      "family": "rounded",
+      "focus": "丸みと柔らかい接続",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 19,
+      "name": "King & McGaw",
+      "url": "https://www.pentagram.com/work/king-mcgaw",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 20,
+      "name": "Sister",
+      "url": "https://www.pentagram.com/work/sister",
+      "family": "geometric",
+      "focus": "幾何形状と反復",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 21,
+      "name": "Dream.org",
+      "url": "https://www.pentagram.com/work/dream-org",
+      "family": "slab",
+      "focus": "太いセリフと安定感",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 22,
+      "name": "Droit",
+      "url": "https://www.pentagram.com/work/droit",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 23,
+      "name": "Global Switch",
+      "url": "https://www.pentagram.com/work/global-switch",
+      "family": "bold",
+      "focus": "太さと力強さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 24,
+      "name": "Tiffany & Co.",
+      "url": "https://www.pentagram.com/work/tiffany-co",
+      "family": "sans",
+      "focus": "字幅・字間と明瞭さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 25,
+      "name": "Fashion for Good",
+      "url": "https://www.pentagram.com/work/fashion-for-good",
+      "family": "rounded",
+      "focus": "丸みと柔らかい接続",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 26,
+      "name": "Frieze",
+      "url": "https://www.pentagram.com/work/frieze",
+      "family": "slab",
+      "focus": "太いセリフと安定感",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 27,
+      "name": "American Express",
+      "url": "https://www.pentagram.com/work/american-express-1",
+      "family": "bold",
+      "focus": "太さと力強さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 28,
+      "name": "Fisher-Price",
+      "url": "https://www.pentagram.com/work/fisher-price",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 29,
+      "name": "Grace Farms",
+      "url": "https://www.pentagram.com/work/grace-farms",
+      "family": "sans",
+      "focus": "字幅・字間と明瞭さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 30,
+      "name": "Jigsaw",
+      "url": "https://www.pentagram.com/work/jigsaw",
+      "family": "bold",
+      "focus": "太さと力強さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 31,
+      "name": "Lilly Pulitzer",
+      "url": "https://www.pentagram.com/work/lilly-pulitzer",
+      "family": "script",
+      "focus": "曲線と筆記の流れ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 32,
+      "name": "L’Alliance New York",
+      "url": "https://www.pentagram.com/work/l-alliance-new-york",
+      "family": "serif",
+      "focus": "セリフと太細の対比",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 33,
+      "name": "National Building Museum",
+      "url": "https://www.pentagram.com/work/national-building-museum",
+      "family": "condensed",
+      "focus": "縦長の文字と密度",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 34,
+      "name": "Parla",
+      "url": "https://www.pentagram.com/work/parla",
+      "family": "geometric",
+      "focus": "幾何形状と反復",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 35,
+      "name": "Samsung Galaxy",
+      "url": "https://www.pentagram.com/work/samsung-galaxy",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 36,
+      "name": "Scenario",
+      "url": "https://www.pentagram.com/work/scenario",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 37,
+      "name": "The Knot",
+      "url": "https://www.pentagram.com/work/the-knot",
+      "family": "script",
+      "focus": "曲線と筆記の流れ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 38,
+      "name": "Dick Clark Productions",
+      "url": "https://www.pentagram.com/work/dick-clark-productions",
+      "family": "sans",
+      "focus": "字幅・字間と明瞭さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 39,
+      "name": "Film Independent",
+      "url": "https://www.pentagram.com/work/film-independent",
+      "family": "condensed",
+      "focus": "縦長の文字と密度",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 40,
+      "name": "Luminato Festival",
+      "url": "https://www.pentagram.com/work/luminato-festival-1",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 41,
+      "name": "Minneapolis Institute of Art",
+      "url": "https://www.pentagram.com/work/minneapolis-institute-of-art",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 42,
+      "name": "NYC Votes",
+      "url": "https://www.pentagram.com/work/nyc-votes-2",
+      "family": "bold",
+      "focus": "太さと力強さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 43,
+      "name": "Quinnipiac",
+      "url": "https://www.pentagram.com/work/quinnipiac",
+      "family": "serif",
+      "focus": "セリフと太細の対比",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 44,
+      "name": "Realspace",
+      "url": "https://www.pentagram.com/work/realspace",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 45,
+      "name": "The Mellon Foundation",
+      "url": "https://www.pentagram.com/work/the-mellon-foundation",
+      "family": "script",
+      "focus": "曲線と筆記の流れ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 46,
+      "name": "The Royal Botanical Gardens, Kew",
+      "url": "https://www.pentagram.com/work/the-royal-botanical-gardens-kew",
+      "family": "sans",
+      "focus": "字幅・字間と明瞭さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 47,
+      "name": "‘The Tonight Show Starring Jimmy Fallon’",
+      "url": "https://www.pentagram.com/work/the-tonight-show-starring-jimmy-fallon",
+      "family": "sans",
+      "focus": "字幅・字間と明瞭さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 48,
+      "name": "Gates Foundation",
+      "url": "https://www.pentagram.com/work/gates-foundation",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 49,
+      "name": "Warner Bros.",
+      "url": "https://www.pentagram.com/work/warner-bros",
+      "family": "condensed",
+      "focus": "縦長の文字と密度",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 50,
+      "name": "Dashlane",
+      "url": "https://www.pentagram.com/work/dashlane",
+      "family": "rounded",
+      "focus": "丸みと柔らかい接続",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 51,
+      "name": "Endo",
+      "url": "https://www.pentagram.com/work/endo",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 52,
+      "name": "MIT Museum",
+      "url": "https://www.pentagram.com/work/mit-museum",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 53,
+      "name": "Rotten Tomatoes",
+      "url": "https://www.pentagram.com/work/rotten-tomatoes",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 54,
+      "name": "Coller Capital",
+      "url": "https://www.pentagram.com/work/coller-capital",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 55,
+      "name": "GSA",
+      "url": "https://www.pentagram.com/work/gsa",
+      "family": "geometric",
+      "focus": "幾何形状と反復",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 56,
+      "name": "Garden Museum",
+      "url": "https://www.pentagram.com/work/garden-museum",
+      "family": "bold",
+      "focus": "太さと力強さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 57,
+      "name": "Green-Wood Cemetery",
+      "url": "https://www.pentagram.com/work/green-wood-cemetery",
+      "family": "sans",
+      "focus": "字幅・字間と明瞭さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 58,
+      "name": "Guggenheim",
+      "url": "https://www.pentagram.com/work/guggenheim-3",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 59,
+      "name": "Guggenheim Fellowship",
+      "url": "https://www.pentagram.com/work/guggenheim-fellowship",
+      "family": "bold",
+      "focus": "太さと力強さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 60,
+      "name": "Gush",
+      "url": "https://www.pentagram.com/work/gush",
+      "family": "condensed",
+      "focus": "縦長の文字と密度",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 61,
+      "name": "Harry Ransom Center",
+      "url": "https://www.pentagram.com/work/harry-ransom-center",
+      "family": "script",
+      "focus": "曲線と筆記の流れ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 62,
+      "name": "Helions",
+      "url": "https://www.pentagram.com/work/helions",
+      "family": "sans",
+      "focus": "字幅・字間と明瞭さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 63,
+      "name": "Hiut",
+      "url": "https://www.pentagram.com/work/hiut",
+      "family": "script",
+      "focus": "曲線と筆記の流れ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 64,
+      "name": "Houston Ballet",
+      "url": "https://www.pentagram.com/work/houston-ballet",
+      "family": "stencil",
+      "focus": "切れ目と余白",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 65,
+      "name": "Imperial",
+      "url": "https://www.pentagram.com/work/imperial",
+      "family": "slab",
+      "focus": "太いセリフと安定感",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 66,
+      "name": "Jetour",
+      "url": "https://www.pentagram.com/work/jetour",
+      "family": "sans",
+      "focus": "字幅・字間と明瞭さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 67,
+      "name": "Library of Congress",
+      "url": "https://www.pentagram.com/work/library-of-congress",
+      "family": "condensed",
+      "focus": "縦長の文字と密度",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 68,
+      "name": "Live from New York: The Lorne Michaels Collection",
+      "url": "https://www.pentagram.com/work/live-from-new-york-the-lorne-michaels-collection",
+      "family": "geometric",
+      "focus": "幾何形状と反復",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 69,
+      "name": "Marina Bay Sands",
+      "url": "https://www.pentagram.com/work/marina-bay-sands",
+      "family": "bold",
+      "focus": "太さと力強さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 70,
+      "name": "Mastercard",
+      "url": "https://www.pentagram.com/work/mastercard",
+      "family": "rounded",
+      "focus": "丸みと柔らかい接続",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 71,
+      "name": "Maxwell",
+      "url": "https://www.pentagram.com/work/maxwell",
+      "family": "sans",
+      "focus": "字幅・字間と明瞭さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 72,
+      "name": "Mytheresa",
+      "url": "https://www.pentagram.com/work/mytheresa",
+      "family": "sans",
+      "focus": "字幅・字間と明瞭さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 73,
+      "name": "National Gallery of Art",
+      "url": "https://www.pentagram.com/work/national-gallery-of-art-2",
+      "family": "serif",
+      "focus": "セリフと太細の対比",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 74,
+      "name": "Navan",
+      "url": "https://www.pentagram.com/work/navan",
+      "family": "bold",
+      "focus": "太さと力強さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 75,
+      "name": "New York City Ballet",
+      "url": "https://www.pentagram.com/work/new-york-city-ballet",
+      "family": "sans",
+      "focus": "字幅・字間と明瞭さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 76,
+      "name": "Nordoff and Robbins",
+      "url": "https://www.pentagram.com/work/nordoff-and-robbins",
+      "family": "rounded",
+      "focus": "丸みと柔らかい接続",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 77,
+      "name": "OSL",
+      "url": "https://www.pentagram.com/work/osl",
+      "family": "geometric",
+      "focus": "幾何形状と反復",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 78,
+      "name": "Payz",
+      "url": "https://www.pentagram.com/work/payz",
+      "family": "bold",
+      "focus": "太さと力強さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 79,
+      "name": "Platform",
+      "url": "https://www.pentagram.com/work/platform",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 80,
+      "name": "Remission Biome",
+      "url": "https://www.pentagram.com/work/remission-biome",
+      "family": "stencil",
+      "focus": "切れ目と余白",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 81,
+      "name": "Renaissance",
+      "url": "https://www.pentagram.com/work/renaissance",
+      "family": "bold",
+      "focus": "太さと力強さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 82,
+      "name": "Rolls-Royce",
+      "url": "https://www.pentagram.com/work/rolls-royce-2",
+      "family": "condensed",
+      "focus": "縦長の文字と密度",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 83,
+      "name": "SC",
+      "url": "https://www.pentagram.com/work/sc",
+      "family": "script",
+      "focus": "曲線と筆記の流れ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 84,
+      "name": "Shakespeare Theatre Company",
+      "url": "https://www.pentagram.com/work/shakespeare-theatre-company",
+      "family": "sans",
+      "focus": "字幅・字間と明瞭さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 85,
+      "name": "Sotheby's",
+      "url": "https://www.pentagram.com/work/sothebys-1",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 86,
+      "name": "St Christopher School",
+      "url": "https://www.pentagram.com/work/st-christopher-school",
+      "family": "bold",
+      "focus": "太さと力強さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 87,
+      "name": "The Criterion Collection",
+      "url": "https://www.pentagram.com/work/the-criterion-collection",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 88,
+      "name": "The Joslyn",
+      "url": "https://www.pentagram.com/work/the-joslyn",
+      "family": "bold",
+      "focus": "太さと力強さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 89,
+      "name": "The New School",
+      "url": "https://www.pentagram.com/work/the-new-school",
+      "family": "bold",
+      "focus": "太さと力強さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 90,
+      "name": "Tractable",
+      "url": "https://www.pentagram.com/work/tractable",
+      "family": "sans",
+      "focus": "字幅・字間と明瞭さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 91,
+      "name": "Univers",
+      "url": "https://www.pentagram.com/work/univers",
+      "family": "geometric",
+      "focus": "幾何形状と反復",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 92,
+      "name": "Viren",
+      "url": "https://www.pentagram.com/work/viren",
+      "family": "sans",
+      "focus": "字幅・字間と明瞭さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 93,
+      "name": "Xsolla",
+      "url": "https://www.pentagram.com/work/xsolla",
+      "family": "rounded",
+      "focus": "丸みと柔らかい接続",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 94,
+      "name": "Yahoo",
+      "url": "https://www.pentagram.com/work/yahoo",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 95,
+      "name": "lululemon selfcare",
+      "url": "https://www.pentagram.com/work/lululemon-selfcare",
+      "family": "sans",
+      "focus": "字幅・字間と明瞭さ",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 96,
+      "name": "Cohere",
+      "url": "https://www.pentagram.com/work/cohere",
+      "family": "rounded",
+      "focus": "丸みと柔らかい接続",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 97,
+      "name": "Eurosport",
+      "url": "https://www.pentagram.com/work/eurosport",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 98,
+      "name": "Flying Flea",
+      "url": "https://www.pentagram.com/work/flying-flea-2",
+      "family": "modular",
+      "focus": "文字の組合せとモジュール",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 99,
+      "name": "Grale",
+      "url": "https://www.pentagram.com/work/grale",
+      "family": "serif",
+      "focus": "セリフと太細の対比",
+      "source": "Pentagram / 制作者による事例解説"
+    },
+    {
+      "id": 100,
+      "name": "Realme",
+      "url": "https://www.pentagram.com/work/realme",
+      "family": "rounded",
+      "focus": "丸みと柔らかい接続",
+      "source": "Pentagram / 制作者による事例解説"
+    }
+  ]
+}
