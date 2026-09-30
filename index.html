@@ -37,7 +37,7 @@ footer strong{color:#fff;font-weight:700}footer a{color:#fff;text-decoration:non
 </style>
 </head>
 <body>
-<header><b>Typo2Logo</b><span>Text + Image · 9 presets</span><button id="evoOpen" class="evo-open" aria-pressed="false">進化・選抜モード →</button></header>
+<header><b>Typo2Logo</b><span>Text + Image · 11 presets</span><button id="evoOpen" class="evo-open" aria-pressed="false">進化・選抜モード →</button></header>
 <main>
 <aside>
 <label for="sourceType">入力方法</label>
@@ -75,7 +75,8 @@ footer strong{color:#fff;font-weight:700}footer a{color:#fff;text-decoration:non
 <div class="row"><div><label for="glow">発光強度 <span id="glowV"></span></label><input id="glow" type="range" min="0" max="2" step="0.01" value="0.85"></div><div><label for="blur">にじみ <span id="blurV"></span></label><input id="blur" type="range" min="0" max="30" step="1" value="8"></div></div>
 <label for="brightness">明るさ <span id="brightnessV"></span></label><input id="brightness" type="range" min="0.4" max="1.6" step="0.05" value="1">
 </div>
-<div class="buttons"><button id="savePreset" class="secondary">現在のJSON</button><button id="saveAllPresets" class="secondary">9種類のJSON</button><button id="loadPreset" class="secondary">JSON読込</button></div><input id="presetFile" type="file" accept=".json,application/json" hidden>
+<div id="dischargeControls" hidden><div class="row"><div><label for="dischargeDensity">放電量 <span id="dischargeDensityV"></span></label><input id="dischargeDensity" type="range" min="0" max="2" step="0.05" value="1"></div><div><label for="dischargeLength">放電の長さ <span id="dischargeLengthV"></span></label><input id="dischargeLength" type="range" min="10" max="100" step="1" value="55"></div></div><button id="dischargeShuffle" class="secondary">放電の形を変える</button><small class="image-note">形はJSONに保存されます。静止画としてPNG保存できます。</small></div>
+<div class="buttons"><button id="savePreset" class="secondary">現在のJSON</button><button id="saveAllPresets" class="secondary">11種類のJSON</button><button id="loadPreset" class="secondary">JSON読込</button></div><input id="presetFile" type="file" accept=".json,application/json" hidden>
 <p id="presetMessage" role="status" class="hint"></p>
 </div>
 <div class="row">
@@ -101,7 +102,7 @@ footer strong{color:#fff;font-weight:700}footer a{color:#fff;text-decoration:non
 <div class="buttons"><button class="primary" id="run">RUN</button><button class="secondary" id="png">SAVE PNG</button><button class="secondary" id="reset">RESET</button></div>
 <p><small>文字または画像の輪郭を「湖岸線」として、内側と外側へ再帰バッファー状の平行線を描きます。画像も高解像度で輪郭を一度だけ連続パス化し、文字と同じストローク差分で滑らかな線にします。線色は湖岸線からの距離に応じて滑らかに補間します。</small></p>
 </aside>
-<section class="preview"><div class="stage"><canvas id="out" width="1600" height="800"></canvas><div class="status"><span id="status">準備中</span><span>1600 × 800 px</span></div><div class="gallery-title"><h2>9種類のプリセット</h2><button id="updateGallery" class="secondary">現在の形で見本を更新</button></div><p class="hint">見本をクリックして適用。文字にも画像にも同じ効果を使えます。</p><div id="presetGallery"></div></div></section>
+<section class="preview"><div class="stage"><canvas id="out" width="1600" height="800"></canvas><div class="status"><span id="status">準備中</span><span>1600 × 800 px</span></div><div class="gallery-title"><h2>11種類のプリセット</h2><button id="updateGallery" class="secondary">現在の形で見本を更新</button></div><p class="hint">見本をクリックして適用。文字にも画像にも同じ効果を使えます。</p><div id="presetGallery"></div></div></section>
 </main>
 
 <!-- EVOLUTION MODE START -->
@@ -428,6 +429,86 @@ footer strong{color:#fff;font-weight:700}footer a{color:#fff;text-decoration:non
         "highlight": 0.3,
         "textureStrength": 0,
         "brightness": 1
+      },
+      "output": {
+        "mode": "fill",
+        "reverse": false,
+        "transparent": false
+      }
+    },
+    {
+      "id": "kirlian",
+      "name": "キルリアン／コロナ放電",
+      "description": "黒い背景に青紫の輪郭光。文字や画像の縁から細い枝状の放電が広がります。キルリアン写真をモチーフにした表現です。",
+      "geometry": {
+        "bufferScale": 0.7,
+        "lineWidth": 1.5,
+        "lineRegion": "both"
+      },
+      "colors": {
+        "background": "#03020b",
+        "shapeFill": "#130a35",
+        "corePalette": [
+          "#ecfaff",
+          "#48cfff",
+          "#7954ff"
+        ],
+        "contourPalette": [
+          "#48cfff",
+          "#7954ff",
+          "#130a35"
+        ]
+      },
+      "effects": {
+        "style": "kirlian",
+        "glowStrength": 1.2,
+        "glowBlur": 10,
+        "highlight": 0.2,
+        "textureStrength": 0,
+        "brightness": 1,
+        "dischargeDensity": 1,
+        "dischargeLength": 55,
+        "dischargeSeed": 52909
+      },
+      "output": {
+        "mode": "fill",
+        "reverse": false,
+        "transparent": false
+      }
+    },
+    {
+      "id": "lightning",
+      "name": "稲妻／サンダー",
+      "description": "白く鋭い芯と青い光。枝分かれした稲妻が文字を横切り、輪郭から周囲へ飛び出します。",
+      "geometry": {
+        "bufferScale": 0.7,
+        "lineWidth": 1.5,
+        "lineRegion": "both"
+      },
+      "colors": {
+        "background": "#020713",
+        "shapeFill": "#071b36",
+        "corePalette": [
+          "#f0ffff",
+          "#65cfff",
+          "#2767ff"
+        ],
+        "contourPalette": [
+          "#65cfff",
+          "#2767ff",
+          "#071b36"
+        ]
+      },
+      "effects": {
+        "style": "lightning",
+        "glowStrength": 1.2,
+        "glowBlur": 10,
+        "highlight": 0.2,
+        "textureStrength": 0,
+        "brightness": 1,
+        "dischargeDensity": 1,
+        "dischargeLength": 55,
+        "dischargeSeed": 92031
       },
       "output": {
         "mode": "fill",
@@ -872,6 +953,7 @@ $("reset").addEventListener("click",()=>location.reload());
 // continuous outline + recursive stroke-difference implementation above.
 const presetDocument=JSON.parse($('typo2logo-presets').textContent);
 const builtInPresets=presetDocument.presets,presetChoices=[...builtInPresets];
+let dischargeSeed=52909;
 let activePreset=null,presetForDrawing=null,presetStrokeWidth=null,galleryGeneration=0,galleryTimer=null,presetFrame=0;
 const presetInk=document.createElement('canvas'),presetInkCtx=presetInk.getContext('2d');
 function paletteRGB(colors,t){
@@ -889,6 +971,7 @@ function currentPreset(){
   p.geometry={bufferScale:+$('spacing').value/7,lineWidth:+$('lineWidth').value,lineRegion:$('lineRegion').value};
   p.colors.background=$('bg').value;p.colors.shapeFill=$('c1').value;
   p.output={mode:$('mode').value,reverse:$('reverse').checked,transparent:$('transparent').checked};
+  if(['kirlian','lightning'].includes(p.effects.style))Object.assign(p.effects,{dischargeDensity:+$('dischargeDensity').value,dischargeLength:+$('dischargeLength').value,dischargeSeed});
   Object.assign(p.effects,{glowStrength:+$('glow').value,glowBlur:+$('blur').value,brightness:+$('brightness').value});return p;
 }
 function styleLayer(layer,layerContext,p,width,height){
@@ -905,12 +988,56 @@ function styleLayer(layer,layerContext,p,width,height){
   }
   layerContext.save();layerContext.globalCompositeOperation='source-in';layerContext.fillStyle=gradient;layerContext.fillRect(0,0,width,height);layerContext.restore();
 }
+// Shared procedural electric effects. Geometry comes from the current alpha mask.
+// This is a visual motif inspired by corona photography, not a physical simulation.
+const electricGeometryCache=new WeakMap();
+function electricGeometry(source,key){
+  const old=electricGeometryCache.get(source);if(key!==undefined&&old?.key===key)return old.data;
+  const sw=600,sh=Math.max(1,Math.round(sw*source.height/source.width)),sample=document.createElement('canvas');sample.width=sw;sample.height=sh;
+  const sc=sample.getContext('2d',{willReadFrequently:true});sc.drawImage(source,0,0,sw,sh);const pix=sc.getImageData(0,0,sw,sh).data;
+  const alpha=(x,y)=>x<0||y<0||x>=sw||y>=sh?0:pix[(Math.floor(y)*sw+Math.floor(x))*4+3];
+  const roots=[];let minX=sw,minY=sh,maxX=0,maxY=0;
+  for(let y=1;y<sh-1;y++)for(let x=1;x<sw-1;x++){
+    if(alpha(x,y)<128)continue;minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);
+    if(alpha(x-1,y)>=128&&alpha(x+1,y)>=128&&alpha(x,y-1)>=128&&alpha(x,y+1)>=128)continue;
+    let nx=0,ny=0;for(let d=-2;d<=2;d++){nx+=alpha(x-2,y+d)-alpha(x+2,y+d);ny+=alpha(x+d,y-2)-alpha(x+d,y+2);}const n=Math.hypot(nx,ny);if(n>1)roots.push({x:x/sw*1000,y:y/sw*1000,nx:nx/n,ny:ny/n});
+  }
+  const data={roots,bounds:{minX:minX/sw*1000,minY:minY/sw*1000,maxX:maxX/sw*1000,maxY:maxY/sw*1000},inside:(x,y)=>alpha(x/1000*sw,y/1000*sw)>=128};
+  if(key!==undefined)electricGeometryCache.set(source,{key,data});return data;
+}
+function drawElectricDischarge(target,source,options={}){
+  const {style='kirlian',density=1,length=55,seed=52909,glow=1,blur=8,color='#5a61ff',core='#e8ffff',width=source.width,height=source.height,cacheKey}=options;
+  const geo=electricGeometry(source,cacheKey);if(!geo.roots.length||density<=0)return;
+  let a=seed>>>0;const random=()=>{a=(Math.imul(a,1664525)+1013904223)>>>0;return a/4294967296;};
+  const paths=[],branches=[],add=(dest,pts)=>{if(pts.length>1)dest.push(pts);};
+  function ray(root,len,angle=0){const ca=Math.cos(angle),sa=Math.sin(angle),dx=root.nx*ca-root.ny*sa,dy=root.ny*ca+root.nx*sa;const pts=[[root.x,root.y]];const steps=Math.max(3,Math.floor(len/3));
+    for(let i=1;i<=steps;i++){const t=i/steps,j=(random()-.5)*Math.min(6,len*.15);const x=root.x+dx*len*t-dy*j,y=root.y+dy*len*t+dx*j;if(i>1&&geo.inside(x,y))break;if(x<6||y<6||x>994||y>height/width*1000-6)break;pts.push([x,y]);}return pts;}
+  const count=Math.min(700,Math.round((style==='kirlian'?290:70)*density));
+  for(let i=0;i<count;i++){const root=geo.roots[Math.floor(random()*geo.roots.length)],len=(.25+random()*.85)*length*(style==='kirlian'?1:1.4),pts=ray(root,len,(random()-.5)*.5);add(paths,pts);if(pts.length>4&&random()<.55){const at=pts[Math.floor(pts.length*.45)];add(branches,ray({...root,x:at[0],y:at[1]},len*.5,(random()<.5?-1:1)*(.5+random()*.7)));}}
+  if(style==='lightning'){
+    const b=geo.bounds,span=b.maxX-b.minX;
+    for(let n=0;n<Math.max(1,Math.round(2*density));n++){
+      const yy=b.minY+(b.maxY-b.minY)*(.25+random()*.5),pts=[],steps=35;
+      for(let i=0;i<=steps;i++){const t=i/steps,x=b.minX+span*t,y=yy+Math.sin(t*9+n)*length*.28+(random()-.5)*length*.6;pts.push([x,Math.max(8,Math.min(height/width*1000-8,y))]);}
+      add(paths,pts);
+      for(let k=0;k<6;k++){const q=pts[3+Math.floor(random()*(steps-6))],dir=random()<.5?-1:1,branch=[q];for(let i=1;i<=7;i++)branch.push([Math.max(8,Math.min(992,q[0]+i*(random()-.25)*8)),Math.max(8,Math.min(height/width*1000-8,q[1]+dir*i*length*.12+(random()-.5)*10))]);add(branches,branch);}
+    }
+  }
+  function pathOf(list){const p=new Path2D();for(const pts of list){p.moveTo(...pts[0]);for(let i=1;i<pts.length;i++)p.lineTo(...pts[i]);}return p;}
+  const main=pathOf(paths),fine=pathOf(branches);
+  target.save();target.scale(width/1000,width/1000);target.lineJoin='round';target.lineCap='round';
+  if(glow>0){target.strokeStyle=color;target.globalAlpha=Math.min(.65,glow*.35);target.lineWidth=4;target.shadowColor=color;target.shadowBlur=Math.max(1,blur*width/1000);target.stroke(main);target.lineWidth=2;target.stroke(fine);}
+  target.shadowBlur=0;target.globalAlpha=.8;target.strokeStyle=color;target.lineWidth=style==='kirlian'?1.4:2.1;target.stroke(main);target.lineWidth=.9;target.stroke(fine);
+  target.strokeStyle=core;target.globalAlpha=.95;target.lineWidth=style==='kirlian'?.45:.8;target.stroke(main);target.lineWidth=.35;target.stroke(fine);target.restore();
+}
+
 function drawPreset(target,p,transparent=false){
   const imageMode=sourceIsImage(),width=imageMode?IW:W,height=imageMode?IH:H,scale=imageMode?IMAGE_SS:1;
   if(presetInk.width!==width||presetInk.height!==height){presetInk.width=width;presetInk.height=height;}
   const ink=presetInkCtx,fx=p.effects,region=$('lineRegion').value,mode=$('mode').value;
+  const electric=['kirlian','lightning'].includes(fx.style);
   const copperScale=+$('spacing').value/7;
-  const inner=fx.style==='copper'?[1,5,10,17].map(x=>x*copperScale).filter(x=>x<maxDistance):recursiveOffsets(maxDistance),outer=fx.style==='copper'?[1,4].map(x=>x*copperScale).filter(x=>x<layout.outerLimit):recursiveOffsets(layout.outerLimit);
+  const inner=electric?[.7,2.2].map(x=>x*copperScale).filter(x=>x<maxDistance):fx.style==='copper'?[1,5,10,17].map(x=>x*copperScale).filter(x=>x<maxDistance):recursiveOffsets(maxDistance),outer=electric?[.7,2.8].map(x=>x*copperScale).filter(x=>x<layout.outerLimit):fx.style==='copper'?[1,4].map(x=>x*copperScale).filter(x=>x<layout.outerLimit):recursiveOffsets(layout.outerLimit);
   ink.clearRect(0,0,width,height);ink.globalCompositeOperation='source-over';
   if(mode==='distance'){
     drawDistanceFill(ink);ink.globalCompositeOperation='destination-in';ink.drawImage(imageMode?imageMask:mask,0,0);ink.globalCompositeOperation='source-over';
@@ -949,6 +1076,7 @@ function drawPreset(target,p,transparent=false){
     target.globalCompositeOperation=transparent?'source-atop':'multiply';target.globalAlpha=fx.textureStrength;target.fillStyle='#807361';
     let seed=971;for(let i=0;i<18000;i++){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const x=seed%width;seed=(Math.imul(seed,1664525)+1013904223)>>>0;target.fillRect(x,seed%height,scale,scale);}
   }
+  if(electric)drawElectricDischarge(target,imageMode?imageMask:mask,{style:fx.style,density:fx.dischargeDensity??1,length:fx.dischargeLength??55,seed:fx.dischargeSeed??52909,glow:fx.glowStrength,blur:fx.glowBlur,color:p.colors.contourPalette[1],core:p.colors.corePalette[0],width,height,cacheKey:generation});
   target.restore();
   return {inner:inner.length,outer:outer.length};
 }
@@ -960,6 +1088,7 @@ function paintPreset(){
   $('status').textContent=`${source}・${p.name}・連続輪郭 内${counts.inner}/外${counts.outer}段・${(performance.now()-started).toFixed(0)} ms`;
 }
 function presetLabels(){
+  $('dischargeControls').hidden=!['kirlian','lightning'].includes(activePreset?.effects.style);$('dischargeDensityV').textContent=(+$('dischargeDensity').value).toFixed(2)+'×';$('dischargeLengthV').textContent=$('dischargeLength').value;
   $('copperActions').hidden=activePreset?.effects.style!=='copper';
   for(const [a,b,s] of [['glow','glowV',''],['blur','blurV',' px'],['brightness','brightnessV','×']])$(b).textContent=$(a).value+s;
   $('effectControls').hidden=!activePreset;$('savePreset').disabled=!activePreset;
@@ -969,6 +1098,7 @@ function applyPreset(p,forceGeometry=false){
   activePreset=p?structuredClone(p):null;
   if(p){
     for(const [id,value] of [['bg',p.colors.background],['c1',p.colors.shapeFill],['c2',p.colors.corePalette[0]],['c3',p.colors.contourPalette[0]]]){$(id).value=value;$(id+'t').value=value;}
+    $('dischargeDensity').value=p.effects.dischargeDensity??1;$('dischargeLength').value=p.effects.dischargeLength??55;dischargeSeed=p.effects.dischargeSeed??52909;
     $('glow').value=p.effects.glowStrength;$('blur').value=p.effects.glowBlur;$('brightness').value=p.effects.brightness;
     if(forceGeometry||!$('lockGeometry').checked){$('spacing').value=p.geometry.bufferScale*7;$('lineWidth').value=p.geometry.lineWidth;$('lineRegion').value=p.geometry.lineRegion;}
     if(forceGeometry&&p.output){$('mode').value=p.output.mode;$('reverse').checked=p.output.reverse;$('transparent').checked=p.output.transparent;}
@@ -1006,11 +1136,13 @@ function validatePreset(p){
   if(!g||!c||!e||!n(g.bufferScale,3/7,45/7)||!n(g.lineWidth,.5,12)||!['inside','outside','both'].includes(g.lineRegion))fail();
   for(const color of [c.background,c.shapeFill])if(typeof color!=='string'||!/^#[0-9a-f]{6}$/i.test(color))fail();
   for(const colors of [c.corePalette,c.contourPalette])if(!Array.isArray(colors)||colors.length<2||colors.length>16||colors.some(v=>typeof v!=='string'||!/^#[0-9a-f]{6}$/i.test(v)))fail();
-  if(!['neon','aurora','gold','silver','print','pop','watercolor','copper'].includes(e.style)||!n(e.glowStrength,0,2)||!n(e.glowBlur,0,30)||!n(e.brightness,.4,1.6)||!n(e.highlight,0,1)||!n(e.textureStrength,0,1))fail();
+  if(!['neon','aurora','gold','silver','print','pop','watercolor','copper','kirlian','lightning'].includes(e.style)||!n(e.glowStrength,0,2)||!n(e.glowBlur,0,30)||!n(e.brightness,.4,1.6)||!n(e.highlight,0,1)||!n(e.textureStrength,0,1))fail();
+  if(e.dischargeDensity!==undefined&&!n(e.dischargeDensity,0,2)||e.dischargeLength!==undefined&&!n(e.dischargeLength,10,100)||e.dischargeSeed!==undefined&&(!Number.isInteger(e.dischargeSeed)||!n(e.dischargeSeed,0,4294967295)))fail();
   if(p.output&&(!['lines','fill','distance'].includes(p.output.mode)||typeof p.output.reverse!=='boolean'||typeof p.output.transparent!=='boolean'))fail();
   return structuredClone(p);
 }
 function initPresets(){
+  $('dischargeShuffle').onclick=()=>{dischargeSeed=(dischargeSeed+7919)>>>0;paint();};
   $('copperRecommended').onclick=()=>{localFont=null;$('font').value='Yu Mincho';$('weight').value='400';$('letterSpacing').value='5';$('sourceType').value='text';toggleSourceControls();applyPreset(builtInPresets.find(p=>p.id==='copper-mincho'),true);render();};
   $('copperShape').onclick=()=>{const b=$('copperShape');b.disabled=true;b.textContent='字形を読み込み中…';const im=new Image();im.onload=()=>{sourceImage=im;imageFileName='千葉達朗_採用案字形';$('sourceType').value='image';$('imageScale').value='100';$('imageInvert').checked=false;$('threshold').value='128';toggleSourceControls();applyPreset(builtInPresets.find(p=>p.id==='copper-mincho'),true);render();b.disabled=false;b.textContent='採用案の字形を使う';};im.onerror=()=>{b.disabled=false;b.textContent='採用案の字形を使う';$('presetMessage').textContent='字形を読み込めませんでした。';};im.src=$('copper-shape-data').textContent.trim();};
 
@@ -1020,19 +1152,19 @@ function initPresets(){
     const c=document.createElement('canvas');c.width=480;c.height=240;const s=document.createElement('span');s.textContent=p.name+' — '+p.description;b.append(c,s);b.addEventListener('click',()=>applyPreset(p));$('presetGallery').append(b);
   }
   $('presetSelect').addEventListener('change',()=>applyPreset(presetChoices.find(p=>p.id===$('presetSelect').value)||null));
-  for(const id of ['glow','blur','brightness'])$(id).addEventListener('input',schedulePresetPaint);
+  for(const id of ['glow','blur','brightness','dischargeDensity','dischargeLength'])$(id).addEventListener('input',schedulePresetPaint);
   for(const id of ['lineWidth','spacing'])$(id).addEventListener('input',scheduleGallery);
   for(const id of ['lineRegion','mode','reverse'])$(id).addEventListener('change',scheduleGallery);
   $('sourceType').addEventListener('change',()=>{++galleryGeneration;});
   $('updateGallery').addEventListener('click',()=>{ $('updateGallery').textContent='見本を更新中…';scheduleGallery(); });
   $('savePreset').addEventListener('click',()=>{if(activePreset)saveJSON({schemaVersion:2,application:'Typo2Logo',presets:[currentPreset()]},'Typo2Logo_'+activePreset.id+'.json');});
-  $('saveAllPresets').addEventListener('click',()=>saveJSON(presetDocument,'Typo2Logo_9_presets.json'));
+  $('saveAllPresets').addEventListener('click',()=>saveJSON(presetDocument,'Typo2Logo_11_presets.json'));
   $('loadPreset').addEventListener('click',()=>$('presetFile').click());
   $('presetFile').addEventListener('change',async event=>{
     const f=event.target.files[0];if(!f)return;
     try{
       if(f.size>200000)throw Error('JSONは200 KB以下にしてください。');
-      const data=JSON.parse(await f.text());if(data.schemaVersion!==2||data.application!=='Typo2Logo'||!Array.isArray(data.presets)||data.presets.length<1||data.presets.length>32)throw Error('この版の「9種類のJSON」または「現在のJSON」を読み込んでください。');
+      const data=JSON.parse(await f.text());if(data.schemaVersion!==2||data.application!=='Typo2Logo'||!Array.isArray(data.presets)||data.presets.length<1||data.presets.length>32)throw Error('この版の「11種類のJSON」または「現在のJSON」を読み込んでください。');
       const loaded=data.presets.map(validatePreset);
       loaded.forEach((p,i)=>{p.id='import-'+Date.now()+'-'+i;presetChoices.push(p);$('presetSelect').add(new Option(p.name+'（読込）',p.id));});
       applyPreset(loaded[0],true);$('presetMessage').textContent=`${loaded.length}種類を読み込みました。`;
@@ -1059,10 +1191,10 @@ const el=id=>document.getElementById(id),REFS=JSON.parse(el('evo-reference-data'
 const KEY='Typo2Logo.evolution.v1',PAGE=20;
 const FONTS=['"Yu Mincho","Noto Serif CJK JP",Georgia,serif','"Yu Gothic","Noto Sans CJK JP",Arial,sans-serif','"Arial Black","Yu Gothic","Noto Sans CJK JP",sans-serif','"Courier New","Noto Sans Mono CJK JP",monospace','Georgia,"Yu Mincho","Noto Serif CJK JP",serif'];
 const FONT_LABEL=['明朝','ゴシック','極太サンセリフ','等幅','セリフ'];
-const STYLES=['塗り','輪郭','インライン','ステンシル','エコー','立体','ネオン','ストライプ','銅色・明朝輪郭'];
+const STYLES=['塗り','輪郭','インライン','ステンシル','エコー','立体','ネオン','ストライプ','銅色・明朝輪郭','コロナ放電','稲妻'];
 const LAYOUTS=['水平','アーチ','波','交互','2段'];
-const PALETTES=[['#080b16','#ffbd16','#306bff','#61eeff'],['#f4f1e6','#213425','#729a39','#c3c8b5'],['#fff6e9','#54281e','#c96c39','#eba674'],['#09163b','#c7ff30','#18dff7','#305bfa'],['#fff7e8','#ed4027','#2148e8','#ffac2a'],['#fafaf7','#181b20','#545a60','#a3aaa7'],['#241335','#f28cca','#91aeff','#ffe0c5'],['#e9eff4','#125a90','#57a6bb','#edbd67'],['#fffaf0','#59200d','#e94b0c','#fff0c8']];
-const RULES={font:[0,4,1],weight:[400,900,1],width:[.6,1.5],tracking:[-20,40],slant:[-.28,.28],rotation:[-8,8],layout:[0,4,1],amplitude:[8,44],style:[0,8,1],palette:[0,8,1],rings:[1,5,1],gap:[2,7],thickness:[1,4],bulk:[0,5]};
+const PALETTES=[['#080b16','#ffbd16','#306bff','#61eeff'],['#f4f1e6','#213425','#729a39','#c3c8b5'],['#fff6e9','#54281e','#c96c39','#eba674'],['#09163b','#c7ff30','#18dff7','#305bfa'],['#fff7e8','#ed4027','#2148e8','#ffac2a'],['#fafaf7','#181b20','#545a60','#a3aaa7'],['#241335','#f28cca','#91aeff','#ffe0c5'],['#e9eff4','#125a90','#57a6bb','#edbd67'],['#fffaf0','#59200d','#e94b0c','#fff0c8'],['#03020b','#130a35','#7954ff','#b9eeff'],['#020713','#071b36','#2767ff','#efffff']];
+const RULES={font:[0,4,1],weight:[400,900,1],width:[.6,1.5],tracking:[-20,40],slant:[-.28,.28],rotation:[-8,8],layout:[0,4,1],amplitude:[8,44],style:[0,10,1],palette:[0,10,1],rings:[1,5,1],gap:[2,7],thickness:[1,4],bulk:[0,5]};
 let state=null,page=0,onlySelected=false,detail=null,renderToken=0,saveWarning=false;
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 function rng(seed){let a=seed>>>0;return()=>{a+=0x6D2B79F5;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};}
@@ -1077,7 +1209,7 @@ function newBatch(s){const r=rng(hash(`${s.seed}/${s.generation}/${s.prelim}`)),
  for(let i=0;i<100;i++){let genes,origins,parentIds=[],elite=false;
  if(parents.length&&i<10&&s.prelim===1){const p=parents[i];genes={...p.genes};origins=[...p.origins];parentIds=[p.id];elite=true;}
  else if(parents.length){const p=choose(parents,r),q=choose(parents.filter(x=>x.id!==p.id),r);genes=cross(p.genes,q.genes,r,s.mutation);origins=[...new Set([...p.origins,...q.origins])].slice(0,12);parentIds=[p.id,q.id];}
- else{genes=randomGenes(r,refs[i]);if(i===0||genes.style===8){Object.assign(genes,{style:8,palette:8,font:0,weight:400,layout:0,rotation:0,slant:0,bulk:0});}origins=[refs[i].id];}
+ else{genes=randomGenes(r,refs[i]);if(i===0||genes.style===8){Object.assign(genes,{style:8,palette:8,font:0,weight:400,layout:0,rotation:0,slant:0,bulk:0});}if(i===1||i===2||genes.style>=9){const style=i===1?9:i===2?10:genes.style;Object.assign(genes,{style,palette:style,layout:0});}origins=[refs[i].id];}
  a.push({id:`G${s.generation}-R${s.prelim}-${String(i+1).padStart(3,'0')}`,genes,origins,parents:parentIds,elite});}
  return a;
 }
@@ -1102,6 +1234,7 @@ function draw(canvas,candidate,text,shapeOnly=false){
  if(g.style===6){const gr=c.createLinearGradient(0,100,w,h);gr.addColorStop(0,p[1]);gr.addColorStop(.5,p[3]);gr.addColorStop(1,p[1]);glyphPaint(gr,g.bulk*2);glyphPaint(gr);}
  }
  if(g.style===3||g.style===7){c.save();if(shapeOnly)c.globalCompositeOperation='destination-out';c.fillStyle=shapeOnly?'#000':p[0];if(g.style===3){for(const y of [h*.43,h*.60])c.fillRect(0,y,w,4+g.thickness);}else for(let y=100;y<350;y+=12+g.gap)c.fillRect(0,y,w,2+g.thickness/2);c.restore();}
+ if(!shapeOnly&&g.style>=9){glyphPaint(p[2],3);glyphPaint(p[1]);const dischargeMask=document.createElement('canvas');dischargeMask.width=1000;dischargeMask.height=440;draw(dischargeMask,candidate,text,true);drawElectricDischarge(c,dischargeMask,{style:g.style===9?'kirlian':'lightning',density:.6+g.rings*.2,length:30+g.amplitude,seed:hash(JSON.stringify(g)),glow:1.1,blur:8,color:p[2],core:p[3],width:w,height:h});}
  c.restore();return canvas;
 }
 function standings(s){const rows=s.pool.map((c,i)=>({c,points:0,wins:0,played:0,opponents:[],tie:0,order:i})),m=new Map(rows.map(x=>[x.c.id,x]));for(const v of s.votes){const a=m.get(v.a),b=m.get(v.b);if(!a||!b)continue;a.played++;b.played++;a.opponents.push(b.c.id);b.opponents.push(a.c.id);if(v.result==='draw'){a.points+=.5;b.points+=.5;}else{const winner=v.result==='a'?a:b;winner.points++;winner.wins++;}}for(const a of rows)a.tie=a.opponents.reduce((n,id)=>n+m.get(id).points,0);return rows.sort((a,b)=>b.points-a.points||b.tie-a.tie||b.wins-a.wins||a.order-b.order);}
