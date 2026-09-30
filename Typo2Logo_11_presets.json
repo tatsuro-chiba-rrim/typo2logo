@@ -302,8 +302,8 @@
     },
     {
       "id": "kirlian",
-      "name": "キルリアン／コロナ放電",
-      "description": "黒い背景に青紫の輪郭光。文字や画像の縁から細い枝状の放電が広がります。キルリアン写真をモチーフにした表現です。",
+      "name": "キルリアン／電界成長",
+      "description": "文字と外周壁の電位差をラプラス方程式で計算。突起への電界集中と文字間の遮蔽を反映し、交差しない曲線状の枝を成長させます。",
       "geometry": {
         "bufferScale": 0.7,
         "lineWidth": 1.5,
@@ -332,7 +332,11 @@
         "brightness": 1,
         "dischargeDensity": 1,
         "dischargeLength": 55,
-        "dischargeSeed": 52909
+        "dischargeSeed": 52909,
+        "fieldVoltage": 1,
+        "fieldEta": 1.6,
+        "fieldThreshold": 0.8,
+        "fieldResolution": 192
       },
       "output": {
         "mode": "fill",
